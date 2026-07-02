@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wahlprogramm-Explorer – Berlin 2026</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ──────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f5f7;
+  --surface:#ffffff;
+  --text:#111827;
+  --text-muted:#6b7280;
+  --border:#e5e7eb;
+  --radius:6px;
+  --radius-lg:10px;
+  --font:'Satoshi',system-ui,sans-serif;
+
+  /* party colours */
+  --spd:#e3000f; --spd-fg:#fff;
+  --cdu:#1a1a1a; --cdu-fg:#fff;
+  --gru:#1fa12d; --gru-fg:#fff;
+  --lnk:#be3075; --lnk-fg:#fff;
+  --afd:#009ee0; --afd-fg:#fff;
+  --fdp:#ffed00; --fdp-fg:#111;
+  --bsw:#7a1f7a; --bsw-fg:#fff;
+
+  /* position colours */
+  --agree-bg:#dcfce7; --agree-text:#166534; --agree-icon:#16a34a;
+  --neutral-bg:#fef9c3; --neutral-text:#854d0e; --neutral-icon:#ca8a04;
+  --disagree-bg:#fee2e2; --disagree-text:#991b1b; --disagree-icon:#dc2626;
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────────────── */
+.app{display:flex;flex-direction:column;min-height:100dvh;}
+
+/* ── HEADER ─────────────────────────────────────────────────────────────────── */
+.header{background:#111827;color:#fff;padding:1rem 1.5rem;display:flex;align-items:flex-end;gap:1.5rem;flex-wrap:wrap;}
+.header-title{font-size:1.25rem;font-weight:700;line-height:1.2;}
+.header-sub{font-size:.8rem;font-weight:500;opacity:.6;margin-top:.15rem;}
+.header-badge{margin-left:auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:.25rem .75rem;font-size:.75rem;font-weight:600;white-space:nowrap;}
+
+/* ── LEGEND BAR ─────────────────────────────────────────────────────────────── */
+.legend-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.legend-sep{width:1px;height:16px;background:var(--border);}
+
+/* ── MAIN CONTENT ────────────────────────────────────────────────────────────── */
+.main{flex:1;padding:1.25rem 1.5rem 3rem;overflow-x:auto;}
+
+/* ── TABLE ───────────────────────────────────────────────────────────────────── */
+.explorer-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.explorer-table{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;}
+
+/* column headers (parties) */
+.explorer-table thead th{
+  padding:.6rem .5rem .5rem;
+  font-size:.8rem;
+  font-weight:700;
+  text-align:center;
+  white-space:nowrap;
+  position:sticky;
+  top:0;
+  z-index:2;
+  border-bottom:2px solid var(--border);
+  background:var(--surface);
+}
+.explorer-table thead th:first-child{
+  text-align:left;
+  min-width:170px;
+  padding-left:.75rem;
+}
+.party-hdr{display:inline-flex;align-items:center;gap:.35rem;}
+.party-pill{display:inline-block;padding:.18rem .55rem;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.01em;}
+
+/* row headers (issues) */
+.issue-cell{
+  padding:.6rem .75rem;
+  vertical-align:middle;
+  font-size:.82rem;
+  font-weight:600;
+  color:var(--text);
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  position:sticky;
+  left:0;
+  z-index:1;
+  max-width:170px;
+}
+.issue-num{font-size:.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:.1rem;}
+.issue-name{line-height:1.3;}
+
+/* data cells */
+.pos-cell{
+  padding:.4rem .35rem;
+  text-align:center;
+  vertical-align:middle;
+  border-bottom:1px solid var(--border);
+  border-left:1px solid var(--border);
+  cursor:pointer;
+  transition:filter .12s, transform .12s, box-shadow .12s;
+  min-width:98px;
+  position:relative;
+}
+.pos-cell:hover{filter:brightness(.92);transform:scale(1.04);z-index:3;box-shadow:0 4px 16px rgba(0,0,0,.14);}
+.pos-cell:active{transform:scale(.98);}
+
+.pos-cell.agree   {background:var(--agree-bg);}
+.pos-cell.neutral {background:var(--neutral-bg);}
+.pos-cell.disagree{background:var(--disagree-bg);}
+
+.pos-cell.opened::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border:2px solid #111827;
+  border-radius:2px;
+  pointer-events:none;
+}
+
+.cell-inner{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.25rem 0;}
+.cell-icon{font-size:1.25rem;line-height:1;}
+.cell-label{font-size:.67rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.7;}
+.cell-read{font-size:.62rem;font-weight:600;opacity:.45;margin-top:.05rem;}
+
+.pos-cell.agree    .cell-icon{color:var(--agree-icon);}
+.pos-cell.neutral  .cell-icon{color:var(--neutral-icon);}
+.pos-cell.disagree .cell-icon{color:var(--disagree-icon);}
+
+/* ── MODAL ───────────────────────────────────────────────────────────────────── */
+.modal-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:1rem;
+}
+.modal-overlay.open{display:flex;animation:fadeIn .15s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.modal{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  max-width:600px;
+  width:100%;
+  max-height:90dvh;
+  overflow-y:auto;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);
+  animation:slideUp .18s ease;
+}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.modal-header{padding:1.25rem 1.5rem .75rem;display:flex;align-items:flex-start;gap:1rem;}
+.modal-party-badge{
+  flex-shrink:0;
+  padding:.35rem .85rem;
+  border-radius:999px;
+  font-size:.8rem;
+  font-weight:700;
+  white-space:nowrap;
+}
+.modal-issue{flex:1;}
+.modal-issue-num{font-size:.7rem;font-weight:700;color:var(--text-muted);margin-bottom:.15rem;}
+.modal-issue-title{font-size:1.05rem;font-weight:700;line-height:1.3;}
+.modal-close{flex-shrink:0;background:none;border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .6rem;font-size:1rem;cursor:pointer;color:var(--text-muted);transition:background .1s;}
+.modal-close:hover{background:var(--bg);}
+
+.modal-thesis-box{
+  margin:0 1.5rem;
+  background:var(--bg);
+  border-radius:var(--radius);
+  padding:.75rem 1rem;
+  font-size:.83rem;
+  color:var(--text-muted);
+  line-height:1.5;
+}
+
+.modal-pos-row{
+  margin:.75rem 1.5rem 0;
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+}
+.modal-pos-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  padding:.3rem .75rem;
+  border-radius:999px;
+  font-size:.78rem;
+  font-weight:700;
+}
+.modal-pos-chip.agree   {background:var(--agree-bg);color:var(--agree-text);}
+.modal-pos-chip.neutral {background:var(--neutral-bg);color:var(--neutral-text);}
+.modal-pos-chip.disagree{background:var(--disagree-bg);color:var(--disagree-text);}
+
+.modal-body{padding:1rem 1.5rem 1.5rem;}
+.modal-section-label{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem;}
+.modal-quote{
+  font-size:.92rem;
+  line-height:1.7;
+  color:var(--text);
+  border-left:3px solid var(--border);
+  padding-left:1rem;
+}
+.modal-quote-party-stripe{
+  height:3px;
+  border-radius:999px;
+  width:40px;
+  margin-bottom:.75rem;
+}
+
+/* ── TRACKER / COPY SECTION ─────────────────────────────────────────────────── */
+.tracker-section{
+  margin-top:2rem;
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  padding:1.5rem;
+  border:1px solid var(--border);
+}
+.tracker-title{font-size:1rem;font-weight:700;margin-bottom:.25rem;}
+.tracker-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:1rem;}
+.tracker-stats{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.stat{background:var(--bg);border-radius:var(--radius);padding:.6rem 1rem;text-align:center;}
+.stat-num{font-size:1.5rem;font-weight:700;display:block;}
+.stat-lbl{font-size:.72rem;color:var(--text-muted);font-weight:600;}
+.tracker-textarea{
+  width:100%;
+  min-height:160px;
+  font-family:monospace;
+  font-size:.78rem;
+  line-height:1.55;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:.75rem;
+  resize:vertical;
+  background:var(--bg);
+  color:#333;
+}
+.copy-btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  margin-top:.75rem;
+  background:#111827;color:#fff;
+  border:none;border-radius:var(--radius);
+  padding:.55rem 1.2rem;
+  font-family:var(--font);font-weight:700;font-size:.85rem;
+  cursor:pointer;transition:background .15s;
+}
+.copy-btn:hover{background:#1f2937;}
+.copy-btn.copied{background:#16a34a;}
+
+/* ── RESPONSIVE ────────────────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .main{padding:.75rem .5rem 3rem;}
+  .header{padding:.75rem 1rem;}
+  .legend-bar{padding:.5rem 1rem;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="header-title">📋 Wahlprogramm-Explorer</div>
+      <div class="header-sub">Berliner Abgeordnetenhauswahl 2026 · 10 Thesen · 7 Parteien</div>
+    </div>
+    <div class="header-badge" id="click-counter">0 Einträge geöffnet</div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-bar">
+    <span style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Positionen:</span>
+    <span class="legend-item">
+      <span class="legend-dot" style="background:var(--agree-bg);border:1.5px solid var(--agree-icon);"></span>
+      Stimmt zu
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot" style="background:var(--neutral-bg);border:1.5px solid var(--neutral-icon);"></span>
+      Neutral
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot" style="background:var(--disagree-bg);border:1.5px solid var(--disagree-icon);"></span>
+      Stimmt nicht zu
+    </span>
+    <span class="legend-sep"></span>
+    <span class="legend-item" style="color:var(--text-muted);">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><rect x=".5" y=".5" width="11" height="11" rx="1.5" stroke="#6b7280" stroke-width="1.2"/></svg>
+      Zelle klicken → Wahlprogramm-Auszug lesen
+    </span>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="explorer-wrap">
+      <table class="explorer-table" id="explorer-table">
+        <thead id="table-head"></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Tracker -->
+    <div class="tracker-section">
+      <div class="tracker-title">📊 Ihr Leseprotokoll</div>
+      <div class="tracker-sub">Alle geöffneten Einträge werden hier aufgezeichnet. Kopieren Sie das Protokoll und fügen Sie es in das Textfeld im Fragebogen ein.</div>
+      <div class="tracker-stats">
+        <div class="stat"><span class="stat-num" id="stat-total">0</span><span class="stat-lbl">Klicks gesamt</span></div>
+        <div class="stat"><span class="stat-num" id="stat-unique">0</span><span class="stat-lbl">Einzigartige Zellen</span></div>
+        <div class="stat"><span class="stat-num" id="stat-theses">0</span><span class="stat-lbl">Thesen erkundet</span></div>
+        <div class="stat"><span class="stat-num" id="stat-parties">0</span><span class="stat-lbl">Parteien erkundet</span></div>
+      </div>
+      <textarea class="tracker-textarea" id="tracker-output" readonly></textarea>
+      <button class="copy-btn" id="copy-btn" onclick="copyLog()">⎘ Protokoll kopieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="modal-party-badge" id="modal-party-badge"></div>
+      <div class="modal-issue">
+        <div class="modal-issue-num" id="modal-issue-num"></div>
+        <div class="modal-issue-title" id="modal-issue-title"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()" title="Schließen">✕</button>
+    </div>
+    <div class="modal-thesis-box" id="modal-thesis-text"></div>
+    <div class="modal-pos-row">
+      <span class="modal-pos-chip" id="modal-pos-chip"></span>
+    </div>
+    <div class="modal-body">
+      <div class="modal-quote-party-stripe" id="modal-stripe"></div>
+      <div class="modal-section-label">Wahlprogramm-Auszug</div>
+      <div class="modal-quote" id="modal-quote"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ───────────────────────────────────────────────────────────────────────
+
+const PARTIES = [
+  { id:'SPD',   name:'SPD',   color:'#e3000f', fg:'#fff' },
+  { id:'CDU',   name:'CDU',   color:'#1a1a1a', fg:'#fff' },
+  { id:'GRÜNE', name:'GRÜNE', color:'#1fa12d', fg:'#fff' },
+  { id:'LINKE', name:'LINKE', color:'#be3075', fg:'#fff' },
+  { id:'AfD',   name:'AfD',   color:'#009ee0', fg:'#fff' },
+  { id:'FDP',   name:'FDP',   color:'#ffed00', fg:'#111' },
+  { id:'BSW',   name:'BSW',   color:'#7a1f7a', fg:'#fff' },
+];
+
+const THESES = [
+  { nr:1,  id:'T1',  title:'Mietendeckel',
+    text:'Berlin soll einen Mietendeckel für landeseigene Wohnungsunternehmen einführen.' },
+  { nr:2,  id:'T2',  title:'Vergesellschaftung',
+    text:'Große Berliner Wohnungskonzerne (ab 3.000 Wohneinheiten) sollen vergesellschaftet werden (Volksentscheid Deutsche Wohnen & Co. enteignen).' },
+  { nr:3,  id:'T3',  title:'Sozialwohnungsneubau',
+    text:'Berlin soll jährlich mindestens 5.000 neue Sozialwohnungen bauen.' },
+  { nr:4,  id:'T4',  title:'ÖPNV-Ausbau',
+    text:'Berlin soll den Ausbau des öffentlichen Nahverkehrs (U-Bahn, Straßenbahn, Bus) weiter beschleunigen.' },
+  { nr:5,  id:'T5',  title:'Klimaneutralität 2045',
+    text:'Berlin soll bis 2045 klimaneutral sein (Bundesziel).' },
+  { nr:6,  id:'T6',  title:'Bildungsausgaben',
+    text:'Berlin soll die Pro-Kopf-Ausgaben für Schulen und Bildung deutlich erhöhen.' },
+  { nr:7,  id:'T7',  title:'Housing First',
+    text:'Berlin soll konsequent auf das Housing-First-Prinzip setzen, um Obdachlosigkeit zu beenden (d.h. Wohnungen vor Auflagen).' },
+  { nr:8,  id:'T8',  title:'Stärkung der Bezirke',
+    text:'Berlins Bezirke sollen mehr Entscheidungskompetenzen und finanzielle Eigenständigkeit erhalten.' },
+  { nr:9,  id:'T9',  title:'Verwaltungsdigitalisierung',
+    text:'Berlin soll die Digitalisierung der Verwaltung deutlich beschleunigen.' },
+  { nr:10, id:'T10', title:'Stadtbäume & Grünflächen',
+    text:'Berlin soll die Anzahl der Stadtbäume und Grünflächen deutlich erhöhen.' },
+];
+
+// pos: 1=agree, 0=neutral, -1=disagree
+// Data layout: [SPD, CDU, GRÜNE, LINKE, AfD, FDP, BSW]
+const DATA = {
+  T1: {
+    pos:  [1, -1, 1, 1, -1, -1, 1],
+    quote:[
+      'Wir begrenzen die Mieterhöhungen bei landeseigenen Unternehmen, unter anderem passen wir das Leistbarkeitsversprechen so an, dass sich die maximale Mietbelastung von 27 Prozent des Haushaltseinkommens an der Bruttokaltmiete orientiert.',
+      'Populistischen Forderungen nach Enteignungen oder der Einführung eines Mietendeckels erteilen wir eine klare Absage. Solche Eingriffe sind keine Lösung für den angespannten Wohnungsmarkt, sondern verschärfen die Situation – sie schrecken Investitionen ab, verhindern Neubau und verringern das Wohnungsangebot.',
+      'Die Landeseigenen Wohnungsunternehmen werden wir zu dauerhaft gemeinwohlorientierten Akteurinnen weiterentwickeln – mit klaren sozialen, ökologischen und wirtschaftlichen Leitlinien.',
+      'Innerhalb der ersten 100 Tage der neuen Regierung wollen wir auf Grundlage eines Senatsbeschlusses einen Mietendeckel für die Landeseigenen Wohnungsunternehmen einführen. Damit setzen wir einen einjährigen Mietenstopp durch. Im Wohnraumversorgungsgesetz schreiben wir anschließend fest, dass Mieterhöhungen auf maximal 1 Prozent jährlich begrenzt werden.',
+      'Mietpreisbremsen und Kappungsgrenzen haben sich nicht bewährt – sie schaffen Fehlanreize und verknappen das Angebot. Wir setzen stattdessen auf mehr Neubau, weniger Regulierung und die Förderung von Wohneigentum.',
+      'Mietendeckel lehnen wir in jeder Form ab. Sie sind verfassungsrechtlich fragwürdig, investitionsfeindlich und führen langfristig zu weniger Wohnraum.',
+      'Wohnen ist ein Grundrecht. Steigende Mieten gefährden den sozialen Zusammenhalt. Das BSW setzt sich für einen Mietpreisdeckel ein, damit Wohnen in Berlin für alle bezahlbar bleibt.',
+    ]
+  },
+  T2: {
+    pos:  [1, -1, 1, 1, -1, -1, 0],
+    quote:[
+      'Die Zustimmung zur Initiative des Volksentscheids Deutsche Wohnen und Co. Enteignen zeigt für uns deutlich, dass eine Mehrheit der Berlinerinnen die zügellose Abzocke großer, insbesondere börsennotierter Wohnungsunternehmen ablehnt. Dabei ist unser Ziel auch die Einführung eines rechtssicheren Mietendeckels über eine Länderöffnungsklausel über die Bundesgesetzgebung oder auf Grundlage des Art. 15 GG.',
+      'Enteignungen privaten Eigentums lehnen wir entschieden ab. Solche Eingriffe untergraben Vertrauen, schrecken Investoren ab und gefährden Arbeitsplätze.',
+      'Die Ergebnisse der Expertinnenkommission und der Gesetzesentwurf der Initiative zeigen, dass eine Vergesellschaftung rechtlich möglich und finanzierbar ist. Wir werden den bereits beschlossenen Volksentscheid deshalb weiter vorantreiben und unterstützen weiterhin die Initiative Deutsche Wohnen & Co. enteignen.',
+      'Im September 2021 haben 59,1 Prozent der Berlinerinnen dem Volksentscheid Deutsche Wohnen & Co enteignen ihre Zustimmung gegeben. Dieses Votum bietet keinen Interpretationsspielraum – Berlin will vergesellschaften und 220.000 Wohnungen in öffentliche Hand überführen. Deshalb wollen wir, dass schnellstmöglich ein Vergesellschaftungsgesetz beschlossen wird.',
+      'Enteignung und Vergesellschaftung lehnen wir grundsätzlich ab. Dadurch entstehen keine neuen Wohnungen – es wird lediglich Eigentum umverteilt, was Investitionen abschreckt und den Wohnungsbau hemmt.',
+      'Vergesellschaftung und Enteignung lehnen wir klar ab. Versuche, Art. 15 GG für Massenenteignungen zu nutzen, werden wir auf allen politischen Ebenen verhindern.',
+      'Das BSW steht für eine stärkere Regulierung des Wohnungsmarktes. Zum Volksentscheid Deutsche Wohnen & Co. enteignen nehmen wir keine eindeutige Position ein – wir prüfen rechtliche und finanzielle Machbarkeit.',
+    ]
+  },
+  T3: {
+    pos:  [1, 1, 1, 1, -1, -1, 1],
+    quote:[
+      'Schon jetzt haben wir Tausende neue Wohnungen in Landeshand geschaffen. Im Jahr 2026 werden es 6.500 sein. Künftig gestalten wir die Rahmenbedingungen so, dass mehr als die Hälfte der neuen Wohnungen bei landeseigenen Wohnungsbaugesellschaften, Genossenschaften und anderen gemeinwohlorientierten Unternehmen entsteht.',
+      '5.175 neue Sozialwohnungen hat Berlin 2025 bewilligt und damit die Marke von 5.000 Wohnungen pro Jahr zum zweiten Mal in Folge übertroffen. Mit einer neuen Berliner Wohnoffensive wollen wir bis zum Jahr 2031 insgesamt 100.000 neue Wohnungen schaffen.',
+      'Genossenschaften, Stiftungen oder Modelle wie das Mietshäuser Syndikat zeigen, wie bezahlbarer Wohnraum dauerhaft gesichert oder neu gebaut wird. Deshalb setzen wir Grüne sämtliche Hebel in Bewegung, um alle am Gemeinwohl orientierten Trägerinnen umfassend zu stärken.',
+      'Wir wollen den landeseigenen Wohnungsunternehmen jährlich bis zu zwei Milliarden Euro Eigenkapital zuführen, um damit den Bau von 7.500 kommunalen Wohnungen jährlich zu finanzieren. Unser Programm ermöglicht es, dass die Unternehmen zu 100% dauerhaft bezahlbare Wohnungen bauen.',
+      'Die aktuelle einseitige Konzentration auf Transferhaushalte ist nicht nachhaltig und gefährdet die Akzeptanz für Neubau sowie die Entwicklung stabiler Nachbarschaften.',
+      'Wir lehnen reine Neubauquartiere mit hohem Anteil geförderter Wohnungen ab, da diese soziale Brennpunkte begünstigen. Stattdessen setzen wir auf die Berliner Mischung mit ausgewogenem Verhältnis zwischen geförderten und frei finanzierten Wohnungen.',
+      'Bezahlbarer Wohnraum muss Priorität haben. Wir fordern mehr Investitionen in den sozialen Wohnungsbau und eine konsequente Mietpreisbindung, damit Menschen mit mittleren und niedrigen Einkommen in Berlin wohnen können.',
+    ]
+  },
+  T4: {
+    pos:  [1, 1, 1, 1, 0, 1, 1],
+    quote:[
+      'Wir treiben den Ausbau der Straßenbahn in allen Bezirken voran. Begonnene U-Bahn-Projekte führen wir zügig weiter, darunter die Verlängerung der U3 zum Mexikoplatz, der U7 zum BER und zur Heerstraße Nord sowie der U8 ins Märkische Viertel.',
+      'Wir wollen mehrere U-Bahn-Verlängerungen sowie dichtere S-Bahn-Takte und bessere Außenbezirksanbindungen vorantreiben.',
+      'Wir wollen den ÖPNV konsequent stärken und ausbauen. Wir sorgen für dichte Takte, längere Trams und bessere, zuverlässige Verbindungen – mit neuen Straßenbahnlinien und dem Ausbau von S- und Regionalbahn im Rahmen der i2030-Projekte.',
+      'Ein zuverlässiger ÖPNV bildet das Rückgrat für die Berliner Mobilität. Alle Menschen, ob jung oder alt, arm oder reich, können den ÖPNV nutzen. Auch in den Außenbezirken muss das Angebot erweitert und die Infrastruktur ausgebaut werden.',
+      'Wir wollen eine aufeinander abgestimmte Verkehrsplanung und ein attraktives Mobilitätsangebot. Gleichzeitig lehnen wir Einschränkungen des Individualverkehrs ab und fordern eine technologieoffene Verkehrspolitik.',
+      'Wir Freie Demokraten wollen die ÖPNV-Krise in Berlin bei Bus, Straßenbahn, U- und S-Bahn beenden. Unser Ziel ist ein öffentlicher Nahverkehr, auf den sich die Menschen jederzeit verlassen können – Ausfälle und Verspätungen müssen der Vergangenheit angehören.',
+      'Öffentlicher Nahverkehr ist Teil der Daseinsvorsorge. Das BSW fordert einen verlässlichen, bezahlbaren und ausgebauten ÖPNV für alle Berlinerinnen und Berliner – unabhängig vom Geldbeutel und Wohnort.',
+    ]
+  },
+  T5: {
+    pos:  [1, 1, 1, 1, -1, 1, 0],
+    quote:[
+      'Mit verbindlichen Maßnahmen passen wir unsere Stadt an den Klimawandel an. Für uns ist sozialdemokratische Stadtpolitik eine Stadtplanung, die Nachhaltigkeit, soziale Gerechtigkeit und Umweltgerechtigkeit in den Mittelpunkt stellt.',
+      'Statt teurer Symbolpolitik setzen wir auf wirksamen und bezahlbaren Klimaschutz dort, wo er tatsächlich große Wirkung entfaltet. Dazu gehören insbesondere der Ausbau und die Dekarbonisierung der Fernwärme. Mit dem Ankauf der Berliner Fernwärme haben wir die Grundlage dafür geschaffen, die Wärmeversorgung langfristig sicher und klimafreundlich weiterzuentwickeln.',
+      'Die klimaneutrale Modernisierung sehen wir Grüne als Chance für die Berliner Wirtschaft. Wir starten eine Investitionsoffensive für die öffentliche Infrastruktur und verbinden diese eng mit der Dekarbonisierung der landeseigenen Unternehmen.',
+      'Berlin muss eine klimaresiliente Stadt mit sauberer Luft, mehr Parks, kühlen Orten in heißen Sommern und einer umweltfreundlichen Energieversorgung, die für alle bezahlbar ist, werden. Deswegen werden wir gezielt in eine klima- und umweltgerechte öffentliche Infrastruktur investieren.',
+      'Die Energiewende in ihrer jetzigen Form lehnen wir ab. Einseitige Klimaschutzziele gefährden die Versorgungssicherheit und belasten Bürgerinnen und Bürger mit steigenden Energiepreisen.',
+      'Wir stehen für eine Energiepolitik, bei der Versorgungssicherheit, Bezahlbarkeit und Klimaschutz Hand in Hand gehen. Energie muss für die Berlinerinnen und Berliner sowie für unsere Wirtschaft verlässlich verfügbar und dauerhaft bezahlbar bleiben.',
+      'Klimaschutz muss sozial verträglich sein. Das BSW lehnt einseitige Belastungen der Bevölkerung durch überzogene Klimaschutzmaßnahmen ab und fordert technologieoffene Lösungen, die Versorgungssicherheit und soziale Gerechtigkeit verbinden.',
+    ]
+  },
+  T6: {
+    pos:  [1, 1, 1, 1, 1, 1, 1],
+    quote:[
+      'Bildung ist staatliche Kernaufgabe. Wir wollen, dass Berlin offen für alle bleibt – dazu gehören gute Schulen und gerechte Bildungschancen für alle Kinder.',
+      'Wir bekennen uns klar zu Bildungsinvestitionen als Priorität. Die CDU gibt Bildung Vorrang bei finanzwirksamen Entscheidungen und will leistungsfähige Schulen für alle Berlinerinnen.',
+      'Entscheidend ist, dass diese Investitionen in nachhaltige Infrastrukturen fließen – in Energie, Mobilität, Bildungseinrichtungen, Digitalisierung und nachhaltige Stadtentwicklung.',
+      'Wir werden keinen Sozialkürzungen oder Gesetzen zustimmen, die das Leben derjenigen, die unsere Stadt am Laufen halten, teurer oder schlechter machen. Das gilt auch für Bildung.',
+      'Wir fordern eine bessere Ausstattung von Schulen, Lehrpläne mit klaren Leistungszielen und eine Rückkehr zu bewährten Unterrichtsmethoden.',
+      'Bildung ist Kernaufgabe des Staates. Wir wollen leistungsfähige Schulen, die Kinder individuell fördern und auf das Leben vorbereiten.',
+      'Wir fordern ein zentrales Programm zur Instandsetzung und ästhetischen Aufwertung von Schulen, das Nachhaltigkeit, Energieeffizienz und Lernfreundlichkeit miteinander verbindet. Jede Schule soll über moderne technische Ausstattung, flächendeckendes WLAN und eigene Arbeitsplätze für Lehrkräfte verfügen.',
+    ]
+  },
+  T7: {
+    pos:  [1, 1, 1, 1, 0, 1, 1],
+    quote:[
+      'Mit dem neuen Vermittlungsprogramm „Wohnen für Hilfe" schaffen wir neue Wege für bezahlbares und generationenübergreifendes Wohnen. Wohnungslosigkeit bekämpfen wir durch eine neue Spezialeinheit Wohnraumschutz.',
+      'Die CDU verweist auf ausgeweitete Hilfen für wohnungslose Menschen und will Housing-First-Ansätze weiterverfolgen – Wohnen als erster Schritt, nicht als letzter.',
+      'Mit dem Programm Housing First ermöglichen wir wohnungslosen Menschen den unmittelbaren Zugang zu eigenem Wohnraum – ohne Vorbedingungen. Wir wollen es ausbauen und gemeinsam mit den Landeseigenen Wohnungsunternehmen mehr Wohnungen bereitstellen.',
+      'Das geschützte Marktsegment wird auf 2.500 Wohnungen pro Jahr verdoppelt. An Menschen, die von Wohnungslosigkeit betroffen sind, sollen zudem 10 Prozent der neu bzw. wieder zu vermietenden Wohnungen der landeseigenen und geförderten Wohnungen mietpreis- und belegungsgebunden vermietet werden.',
+      'Hilfsangebote für Obdachlose unterstützen wir. Allerdings betonen wir stärker die Eigenverantwortung und lehnen bedingungslose Wohnungsvergabe ohne Gegenleistung ab.',
+      'Es darf keine Obdachlosigkeit geben. Wir wollen Prävention, schnelle Unterbringung und eine Housing-First-Strategie, die Menschen in regulären Wohnraum vermittelt.',
+      'Das BSW unterstützt Housing First als besonders wirksamen Ansatz zur Bekämpfung von Wohnungslosigkeit. Obdachlose Menschen brauchen zuerst eine stabile Wohnung, um dann weitere Hilfen in Anspruch zu nehmen.',
+    ]
+  },
+  T8: {
+    pos:  [1, 1, 1, 1, 1, 1, 1],
+    quote:[
+      'Wir wollen, dass Berlin offen für alle bleibt. Die Bezirke stärken wir personell und finanziell, damit sie ihre Aufgaben vor Ort erfüllen können.',
+      'Die Bezirke wollen wir als zentrale Anlaufstellen stärken und ihnen mehr Anreize und Kompetenzen geben. Wir wollen flächendeckend gut ausgestattete, wohnortnahe Mieterberatungsstellen schaffen.',
+      'Die Stadtplanung erfolgt demokratisch, partizipativ und in enger Abstimmung mit den Bezirken. Starke Bezirke mit qualifiziertem Personal, Datenzugang sowie verbindlichen Kompetenzen bei Kontrolle, Beratung und rechtlicher Durchsetzung.',
+      'Wir werden die Planungskapazitäten für neue ÖPNV-Verbindungen und Brücken sowie Rad- und Fußwege in der Hauptverwaltung und den Bezirken ausbauen. Die bezirklichen Bauplanungsämter werden wir stärken.',
+      'Wir befürworten mehr kommunale Selbstverwaltung und stärkere Entscheidungskompetenzen auf Bezirksebene, um Bürgernähe und Effizienz zu verbessern.',
+      'Die Bezirke wollen wir etwa über Erlösbeteiligungen stärker einbinden. Eine gute Anbindung von Außenbezirken und dem Umland kann einen entscheidenden Beitrag zur Entspannung der Lage auf dem Wohnungsmarkt im Innenstadtbereich leisten.',
+      'Das BSW befürwortet mehr Entscheidungskompetenzen der Bezirke. Entscheidungen sollen bürgernah und transparent getroffen werden – nicht allein in der Senatsverwaltung.',
+    ]
+  },
+  T9: {
+    pos:  [1, 1, 1, 1, 1, 1, 1],
+    quote:[
+      'Dafür treiben wir die KI-unterstützte Digitalisierung in den Bauämtern voran. Planungsrechtliche Genehmigungen sollen zügig erfolgen.',
+      'Unser Ziel ist eine digitale und zukunftsfähige Justiz, die IT und Künstliche Intelligenz konsequent nutzt, um Verfahren effizienter zu machen. Planungs- und Genehmigungsverfahren werden wir weiter verkürzen und bürokratische Hürden abbauen. Im Fokus stehen dabei die Digitalisierung von Anträgen und Entscheidungen sowie effizientere Abläufe in den Bezirksämtern.',
+      'Wir wollen Bürokratieabbau und Planungsbeschleunigung statt Deregulierung und Abbau von Standards. Für Innovation, Wettbewerbsfähigkeit und Effizienz werden wir Hürden abbauen, Planungen erleichtern und Prozesse beschleunigen.',
+      'Wir müssen unsere Verwaltung digitaler und effizienter machen und die Verwaltungsreform mit Leben füllen. Damit in unsere soziale Stadt und eine gute Infrastruktur investiert werden kann.',
+      'Wir fordern Verwaltungsmodernisierung und Bürokratieabbau. Digitale Lösungen sollen Behördengänge vereinfachen und Genehmigungsverfahren beschleunigen.',
+      'Die Gewerbeanmeldung werden wir vollständig digitalisieren und alle beteiligten Behörden automatisch einbinden. So reduzieren wir bürokratische Hürden und erleichtern Gründungen sowie unternehmerische Tätigkeit erheblich. Unser Ziel lautet: Unternehmensgründungen innerhalb von 24 Stunden.',
+      'Digitalisierung ist ein Werkzeug des Lernens, kein Ersatz für Bildung. Zur Entlastung der Schulen und für mehr Transparenz soll ein zentrales IT-System für alle Berliner Schulen geschaffen werden, das den Verwaltungsaufwand verringert.',
+    ]
+  },
+  T10: {
+    pos:  [1, 1, 1, 1, 0, 0, 1],
+    quote:[
+      'Mit dem Berliner Klimaanpassungsgesetz haben wir eine Grundlage geschaffen, um Berlin grüner und kühler zu machen. Bis 2040 soll die Zahl der Stadtbäume um 70 Prozent steigen. Wir erhalten Straßenbaumstandorte, bepflanzen leere Baumscheiben bis 2027 und schaffen neue Baumstandorte – im Zielbild alle 15 Meter einen.',
+      'Wir werden die Voraussetzungen dafür schaffen, dass Kleingärten und Flächen für andere Formen des Gemeinschaftsgärtnerns bei größeren Bau- und Infrastrukturprojekten als ökologische Ausgleichsfläche anerkannt werden. Bis 2040 soll die Zahl der Straßenbäume auf eine Million steigen.',
+      'Unser Ziel: eine Million Bäume für Berlin. Deshalb werden wir das BäumePlus-Gesetz konsequent umsetzen. Wir schaffen klare Verantwortlichkeiten in der Verwaltung. Vorrangig sollen klimaresiliente Bäume in Hitze-Hotspots, auf stark versiegelten Flächen und in dicht bebauten Kiezen gepflanzt werden.',
+      'Berlin muss eine klimaresiliente Stadt mit sauberer Luft, mehr Parks, kühlen Orten in heißen Sommern werden. Deswegen werden wir gezielt den BaumEntscheid konsequent umsetzen.',
+      'Wir unterstützen naturnahe Stadtentwicklung und den Erhalt von Grünflächen. Konkrete quantitative Ausbauziele für Stadtbäume formulieren wir nicht.',
+      'Parks, Grünflächen und Straßenbäume müssen in einem guten Zustand erhalten und sorgfältig gepflegt werden. Wir wollen die Qualität der Grünflächen erhöhen, unsere Straßenbäume regelmäßig nachpflanzen und deren kontinuierliche Pflege und Bewässerung sicherstellen.',
+      'Das BSW unterstützt mehr Grünflächen und Baumschutz. Eine lebenswerte Stadt braucht ausreichend Natur, Erholungsräume und ein gesundes Stadtklima für alle Berlinerinnen und Berliner.',
+    ]
+  },
+};
+
+// ── STATE ───────────────────────────────────────────────────────────────────────
+const clickLog = []; // {thesisId, thesisTitle, partyId, pos, ts}
+
+// ── BUILD TABLE ─────────────────────────────────────────────────────────────────
+function buildTable() {
+  const head = document.getElementById('table-head');
+  const body = document.getElementById('table-body');
+
+  // Header row
+  let hRow = '<tr><th style="text-align:left;padding-left:.75rem;"><span style="font-size:.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">These</span></th>';
+  PARTIES.forEach(p => {
+    hRow += `<th>
+      <span class="party-pill" style="background:${p.color};color:${p.fg}">${p.name}</span>
+    </th>`;
+  });
+  hRow += '</tr>';
+  head.innerHTML = hRow;
+
+  // Body rows
+  let bodyHtml = '';
+  THESES.forEach(t => {
+    bodyHtml += '<tr>';
+    bodyHtml += `<td class="issue-cell">
+      <span class="issue-num">These ${t.nr}</span>
+      <span class="issue-name">${t.title}</span>
+    </td>`;
+    const d = DATA[t.id];
+    PARTIES.forEach((p, pi) => {
+      const posVal = d.pos[pi];
+      const cls = posVal === 1 ? 'agree' : posVal === -1 ? 'disagree' : 'neutral';
+      const icon = posVal === 1 ? '✓' : posVal === -1 ? '✗' : '–';
+      const label = posVal === 1 ? 'Stimmt zu' : posVal === -1 ? 'Lehnt ab' : 'Neutral';
+      bodyHtml += `<td class="pos-cell ${cls}" 
+        id="cell-${t.id}-${p.id}"
+        onclick="openModal('${t.id}','${p.id}')"
+        title="${p.name}: ${label} – Klicken zum Lesen">
+        <div class="cell-inner">
+          <span class="cell-icon">${icon}</span>
+          <span class="cell-label">${label}</span>
+          <span class="cell-read">Lesen ↗</span>
+        </div>
+      </td>`;
+    });
+    bodyHtml += '</tr>';
+  });
+  body.innerHTML = bodyHtml;
+}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────────
+function openModal(thesisId, partyId) {
+  const t = THESES.find(x => x.id === thesisId);
+  const p = PARTIES.find(x => x.id === partyId);
+  const pi = PARTIES.indexOf(p);
+  const d = DATA[thesisId];
+  const posVal = d.pos[pi];
+  const cls = posVal === 1 ? 'agree' : posVal === -1 ? 'disagree' : 'neutral';
+  const posLabel = posVal === 1 ? '✓ Stimmt zu' : posVal === -1 ? '✗ Lehnt ab' : '– Neutral';
+
+  // Fill modal
+  document.getElementById('modal-party-badge').textContent = p.name;
+  document.getElementById('modal-party-badge').style.background = p.color;
+  document.getElementById('modal-party-badge').style.color = p.fg;
+  document.getElementById('modal-issue-num').textContent = `These ${t.nr} von 10`;
+  document.getElementById('modal-issue-title').textContent = t.title;
+  document.getElementById('modal-thesis-text').textContent = t.text;
+
+  const chip = document.getElementById('modal-pos-chip');
+  chip.textContent = posLabel;
+  chip.className = `modal-pos-chip ${cls}`;
+
+  document.getElementById('modal-stripe').style.background = p.color;
+  document.getElementById('modal-quote').textContent = d.quote[pi];
+
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Record click
+  const ts = new Date().toISOString();
+  clickLog.push({ thesisId, thesisTitle: t.title, thesisNr: t.nr, partyId: p.id, posVal, ts });
+
+  // Mark cell as opened
+  const cell = document.getElementById(`cell-${thesisId}-${partyId}`);
+  if (cell) cell.classList.add('opened');
+
+  updateStats();
+  updateLog();
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+// ── STATS & LOG ──────────────────────────────────────────────────────────────────
+function updateStats() {
+  const total = clickLog.length;
+  const unique = new Set(clickLog.map(c => `${c.thesisId}|${c.partyId}`)).size;
+  const theses = new Set(clickLog.map(c => c.thesisId)).size;
+  const parties = new Set(clickLog.map(c => c.partyId)).size;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-unique').textContent = unique;
+  document.getElementById('stat-theses').textContent = theses;
+  document.getElementById('stat-parties').textContent = parties;
+  document.getElementById('click-counter').textContent =
+    `${unique} Eintrag${unique !== 1 ? 'e' : ''} geöffnet`;
+}
+
+function updateLog() {
+  const total = clickLog.length;
+  const unique = new Set(clickLog.map(c => `${c.thesisId}|${c.partyId}`)).size;
+  const thesesSeen = new Set(clickLog.map(c => c.thesisId));
+  const partiesSeen = new Set(clickLog.map(c => c.partyId));
+
+  const posLabel = v => v === 1 ? 'stimmt zu' : v === -1 ? 'lehnt ab' : 'neutral';
+
+  let lines = [];
+  lines.push('=== Wahlprogramm-Explorer – Leseprotokoll ===');
+  lines.push(`Berliner Abgeordnetenhauswahl 2026`);
+  lines.push(`Erstellt: ${new Date().toLocaleString('de-DE')}`);
+  lines.push('');
+  lines.push(`Klicks gesamt: ${total} | Einzigartige Zellen: ${unique} | Thesen: ${thesesSeen.size}/10 | Parteien: ${partiesSeen.size}/7`);
+  lines.push('');
+  lines.push('--- Gelesene Einträge (chronologisch) ---');
+  clickLog.forEach((c, i) => {
+    const time = new Date(c.ts).toLocaleTimeString('de-DE');
+    lines.push(`${i+1}. These ${c.thesisNr} (${c.thesisTitle}) × ${c.partyId} [${posLabel(c.posVal)}] — ${time}`);
+  });
+  lines.push('');
+
+  // Summary by thesis
+  lines.push('--- Übersicht nach These ---');
+  THESES.forEach(t => {
+    const hits = clickLog.filter(c => c.thesisId === t.id);
+    if (hits.length === 0) return;
+    const partyList = [...new Set(hits.map(c => c.partyId))].join(', ');
+    lines.push(`These ${t.nr} (${t.title}): ${partyList} (${hits.length}× gelesen)`);
+  });
+  lines.push('');
+
+  // Summary by party
+  lines.push('--- Übersicht nach Partei ---');
+  PARTIES.forEach(p => {
+    const hits = clickLog.filter(c => c.partyId === p.id);
+    if (hits.length === 0) return;
+    const thesisList = [...new Set(hits.map(c => `These ${c.thesisNr}`))].join(', ');
+    lines.push(`${p.id}: ${thesisList} (${hits.length}× gelesen)`);
+  });
+
+  document.getElementById('tracker-output').value = lines.join('\n');
+
+  // Qualtrics bridge
+  try {
+    window.parent.postMessage(JSON.stringify({
+      type: 'manifesto-explorer-log',
+      totalClicks: total,
+      uniqueCells: unique,
+      thesesExplored: thesesSeen.size,
+      partiesExplored: partiesSeen.size,
+      log: clickLog
+    }), '*');
+  } catch(e) {}
+}
+
+function copyLog() {
+  const ta = document.getElementById('tracker-output');
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  try {
+    navigator.clipboard.writeText(ta.value).catch(() => document.execCommand('copy'));
+  } catch(e) { document.execCommand('copy'); }
+  const btn = document.getElementById('copy-btn');
+  btn.classList.add('copied');
+  btn.textContent = '✓ Kopiert!';
+  setTimeout(() => {
+    btn.classList.remove('copied');
+    btn.textContent = '⎘ Protokoll kopieren';
+  }, 2500);
+}
+
+// ── INIT ────────────────────────────────────────────────────────────────────────
+buildTable();
+updateStats();
+updateLog();
+</script>
+</body>
+</html>
