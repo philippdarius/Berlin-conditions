@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wahlprogramm-Explorer – Berlin 2026</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ──────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f5f7;
+  --surface:#ffffff;
+  --text:#111827;
+  --text-muted:#6b7280;
+  --border:#e5e7eb;
+  --radius:6px;
+  --radius-lg:10px;
+  --font:'Satoshi',system-ui,sans-serif;
+
+  /* party colours */
+  --spd:#e3000f; --spd-fg:#fff;
+  --cdu:#1a1a1a; --cdu-fg:#fff;
+  --gru:#1fa12d; --gru-fg:#fff;
+  --lnk:#be3075; --lnk-fg:#fff;
+  --afd:#009ee0; --afd-fg:#fff;
+  --fdp:#ffed00; --fdp-fg:#111;
+  --bsw:#7a1f7a; --bsw-fg:#fff;
+
+  /* position colours */
+  --agree-bg:#dcfce7; --agree-text:#166534; --agree-icon:#16a34a;
+  --neutral-bg:#fef9c3; --neutral-text:#854d0e; --neutral-icon:#ca8a04;
+  --disagree-bg:#fee2e2; --disagree-text:#991b1b; --disagree-icon:#dc2626;
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────────────── */
+.app{display:flex;flex-direction:column;min-height:100dvh;}
+
+/* ── HEADER ─────────────────────────────────────────────────────────────────── */
+.header{background:#111827;color:#fff;padding:1rem 1.5rem;display:flex;align-items:flex-end;gap:1.5rem;flex-wrap:wrap;}
+.header-title{font-size:1.25rem;font-weight:700;line-height:1.2;}
+.header-sub{font-size:.8rem;font-weight:500;opacity:.6;margin-top:.15rem;}
+.header-badge{margin-left:auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:.25rem .75rem;font-size:.75rem;font-weight:600;white-space:nowrap;}
+
+/* ── LEGEND BAR ─────────────────────────────────────────────────────────────── */
+.legend-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.legend-sep{width:1px;height:16px;background:var(--border);}
+
+/* ── MAIN CONTENT ────────────────────────────────────────────────────────────── */
+.main{flex:1;padding:1.25rem 1.5rem 3rem;overflow-x:auto;}
+
+/* ── TABLE ───────────────────────────────────────────────────────────────────── */
+.explorer-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.explorer-table{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;}
+
+/* column headers (parties) */
+.explorer-table thead th{
+  padding:.6rem .5rem .5rem;
+  font-size:.8rem;
+  font-weight:700;
+  text-align:center;
+  white-space:nowrap;
+  position:sticky;
+  top:0;
+  z-index:2;
+  border-bottom:2px solid var(--border);
+  background:var(--surface);
+}
+.explorer-table thead th:first-child{
+  text-align:left;
+  min-width:170px;
+  padding-left:.75rem;
+}
+.party-hdr{display:inline-flex;align-items:center;gap:.35rem;}
+.party-pill{display:inline-block;padding:.18rem .55rem;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.01em;}
+
+/* row headers (issues) */
+.issue-cell{
+  padding:.6rem .75rem;
+  vertical-align:middle;
+  font-size:.82rem;
+  font-weight:600;
+  color:var(--text);
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  position:sticky;
+  left:0;
+  z-index:1;
+  max-width:170px;
+}
+.issue-num{font-size:.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:.1rem;}
+.issue-name{line-height:1.3;}
+
+/* data cells */
+.pos-cell{
+  padding:.4rem .35rem;
+  text-align:center;
+  vertical-align:middle;
+  border-bottom:1px solid var(--border);
+  border-left:1px solid var(--border);
+  cursor:pointer;
+  transition:filter .12s, transform .12s, box-shadow .12s;
+  min-width:98px;
+  position:relative;
+}
+.pos-cell:hover{filter:brightness(.92);transform:scale(1.04);z-index:3;box-shadow:0 4px 16px rgba(0,0,0,.14);}
+.pos-cell:active{transform:scale(.98);}
+
+.pos-cell.agree   {background:var(--agree-bg);}
+.pos-cell.neutral {background:var(--neutral-bg);}
+.pos-cell.disagree{background:var(--disagree-bg);}
+
+.pos-cell.opened::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border:2px solid #111827;
+  border-radius:2px;
+  pointer-events:none;
+}
+
+.cell-inner{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.25rem 0;}
+.cell-icon{font-size:1.25rem;line-height:1;}
+.cell-label{font-size:.67rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.7;}
+.cell-read{font-size:.62rem;font-weight:600;opacity:.45;margin-top:.05rem;}
+
+.pos-cell.agree    .cell-icon{color:var(--agree-icon);}
+.pos-cell.neutral  .cell-icon{color:var(--neutral-icon);}
+.pos-cell.disagree .cell-icon{color:var(--disagree-icon);}
+
+/* ── MODAL ───────────────────────────────────────────────────────────────────── */
+.modal-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:1rem;
+}
+.modal-overlay.open{display:flex;animation:fadeIn .15s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.modal{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  max-width:600px;
+  width:100%;
+  max-height:90dvh;
+  overflow-y:auto;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);
+  animation:slideUp .18s ease;
+}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.modal-header{padding:1.25rem 1.5rem .75rem;display:flex;align-items:flex-start;gap:1rem;}
+.modal-party-badge{
+  flex-shrink:0;
+  padding:.35rem .85rem;
+  border-radius:999px;
+  font-size:.8rem;
+  font-weight:700;
+  white-space:nowrap;
+}
+.modal-issue{flex:1;}
+.modal-issue-num{font-size:.7rem;font-weight:700;color:var(--text-muted);margin-bottom:.15rem;}
+.modal-issue-title{font-size:1.05rem;font-weight:700;line-height:1.3;}
+.modal-close{flex-shrink:0;background:none;border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .6rem;font-size:1rem;cursor:pointer;color:var(--text-muted);transition:background .1s;}
+.modal-close:hover{background:var(--bg);}
+
+.modal-thesis-box{
+  margin:0 1.5rem;
+  background:var(--bg);
+  border-radius:var(--radius);
+  padding:.75rem 1rem;
+  font-size:.83rem;
+  color:var(--text-muted);
+  line-height:1.5;
+}
+
+.modal-pos-row{
+  margin:.75rem 1.5rem 0;
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+}
+.modal-pos-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  padding:.3rem .75rem;
+  border-radius:999px;
+  font-size:.78rem;
+  font-weight:700;
+}
+.modal-pos-chip.agree   {background:var(--agree-bg);color:var(--agree-text);}
+.modal-pos-chip.neutral {background:var(--neutral-bg);color:var(--neutral-text);}
+.modal-pos-chip.disagree{background:var(--disagree-bg);color:var(--disagree-text);}
+
+.modal-body{padding:1rem 1.5rem 1.5rem;}
+.modal-section-label{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem;}
+.modal-quote{
+  font-size:.92rem;
+  line-height:1.7;
+  color:var(--text);
+  border-left:3px solid var(--border);
+  padding-left:1rem;
+}
+.modal-quote-party-stripe{
+  height:3px;
+  border-radius:999px;
+  width:40px;
+  margin-bottom:.75rem;
+}
+
+/* ── TRACKER / COPY SECTION ─────────────────────────────────────────────────── */
+.tracker-section{
+  margin-top:2rem;
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  padding:1.5rem;
+  border:1px solid var(--border);
+}
+.tracker-title{font-size:1rem;font-weight:700;margin-bottom:.25rem;}
+.tracker-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:1rem;}
+.tracker-stats{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.stat{background:var(--bg);border-radius:var(--radius);padding:.6rem 1rem;text-align:center;}
+.stat-num{font-size:1.5rem;font-weight:700;display:block;}
+.stat-lbl{font-size:.72rem;color:var(--text-muted);font-weight:600;}
+.tracker-textarea{
+  width:100%;
+  min-height:160px;
+  font-family:monospace;
+  font-size:.78rem;
+  line-height:1.55;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:.75rem;
+  resize:vertical;
+  background:var(--bg);
+  color:#333;
+}
+.copy-btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  margin-top:.75rem;
+  background:#111827;color:#fff;
+  border:none;border-radius:var(--radius);
+  padding:.55rem 1.2rem;
+  font-family:var(--font);font-weight:700;font-size:.85rem;
+  cursor:pointer;transition:background .15s;
+}
+.copy-btn:hover{background:#1f2937;}
+.copy-btn.copied{background:#16a34a;}
+
+/* ── RESPONSIVE ────────────────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .main{padding:.75rem .5rem 3rem;}
+  .header{padding:.75rem 1rem;}
+  .legend-bar{padding:.5rem 1rem;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="header-title">📋 Wahlprogramm-Explorer</div>
+      <div class="header-sub">Berliner Abgeordnetenhauswahl 2026 · 10 Thesen · 7 Parteien</div>
+    </div>
+    <div class="header-badge" id="click-counter">0 Einträge geöffnet</div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-bar">
+    <span style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Positionen:</span>
+    <span class="legend-item">
+      <span class="legend-dot" style="background:var(--agree-bg);border:1.5px solid var(--agree-icon);"></span>
+      Stimmt zu
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot" style="background:var(--neutral-bg);border:1.5px solid var(--neutral-icon);"></span>
+      Neutral
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot" style="background:var(--disagree-bg);border:1.5px solid var(--disagree-icon);"></span>
+      Stimmt nicht zu
+    </span>
+    <span class="legend-sep"></span>
+    <span class="legend-item" style="color:var(--text-muted);">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><rect x=".5" y=".5" width="11" height="11" rx="1.5" stroke="#6b7280" stroke-width="1.2"/></svg>
+      Zelle klicken → Wahlprogramm-Auszug lesen
+    </span>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="explorer-wrap">
+      <table class="explorer-table" id="explorer-table">
+        <thead id="table-head"></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Tracker -->
+    <div class="tracker-section">
+      <div class="tracker-title">📊 Ihr Leseprotokoll</div>
+      <div class="tracker-sub">Alle geöffneten Einträge werden hier aufgezeichnet. Kopieren Sie das Protokoll und fügen Sie es in das Textfeld im Fragebogen ein.</div>
+      <div class="tracker-stats">
+        <div class="stat"><span class="stat-num" id="stat-total">0</span><span class="stat-lbl">Klicks gesamt</span></div>
+        <div class="stat"><span class="stat-num" id="stat-unique">0</span><span class="stat-lbl">Einzigartige Zellen</span></div>
+        <div class="stat"><span class="stat-num" id="stat-theses">0</span><span class="stat-lbl">Thesen erkundet</span></div>
+        <div class="stat"><span class="stat-num" id="stat-parties">0</span><span class="stat-lbl">Parteien erkundet</span></div>
+      </div>
+      <textarea class="tracker-textarea" id="tracker-output" readonly></textarea>
+      <button class="copy-btn" id="copy-btn" onclick="copyLog()">⎘ Protokoll kopieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="modal-party-badge" id="modal-party-badge"></div>
+      <div class="modal-issue">
+        <div class="modal-issue-num" id="modal-issue-num"></div>
+        <div class="modal-issue-title" id="modal-issue-title"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()" title="Schließen">✕</button>
+    </div>
+    <div class="modal-thesis-box" id="modal-thesis-text"></div>
+    <div class="modal-pos-row">
+      <span class="modal-pos-chip" id="modal-pos-chip"></span>
+    </div>
+    <div class="modal-body">
+      <div class="modal-quote-party-stripe" id="modal-stripe"></div>
+      <div class="modal-section-label">Wahlprogramm-Auszug</div>
+      <div class="modal-quote" id="modal-quote"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ───────────────────────────────────────────────────────────────────────
+
+const PARTIES = [
+  { id:'SPD',   name:'SPD',   color:'#e3000f', fg:'#fff' },
+  { id:'CDU',   name:'CDU',   color:'#1a1a1a', fg:'#fff' },
+  { id:'GRÜNE', name:'GRÜNE', color:'#1fa12d', fg:'#fff' },
+  { id:'LINKE', name:'LINKE', color:'#be3075', fg:'#fff' },
+  { id:'AfD',   name:'AfD',   color:'#009ee0', fg:'#fff' },
+  { id:'FDP',   name:'FDP',   color:'#ffed00', fg:'#111' },
+  { id:'BSW',   name:'BSW',   color:'#7a1f7a', fg:'#fff' },
+];
+
+const THESES = [
+  { nr:1,  id:'T1',  title:'Mietendeckel',
+    text:'Berlin soll einen Mietendeckel für landeseigene Wohnungsunternehmen einführen.' },
+  { nr:2,  id:'T2',  title:'Vergesellschaftung großer Wohnungskonzerne',
+    text:'Große Berliner Wohnungskonzerne (ab 3.000 Wohneinheiten) sollen vergesellschaftet werden (Volksentscheid Deutsche Wohnen & Co. enteignen).' },
+  { nr:3,  id:'T3',  title:'Autoverkehr Einschränkungen',
+    text:'Berlin soll den motorisierten Individualverkehr (PKW) stärker einschränken (z.B. durch Parkraumreduzierung, autofreie Zonen).' },
+  { nr:4,  id:'T4',  title:'Klimaneutralität Berlin 2045',
+    text:'Berlin soll bis 2045 klimaneutral sein (Bundesziel).' },
+  { nr:5,  id:'T5',  title:'Militärische Forschung Hochschulen',
+    text:'An Berliner Hochschulen soll für militärische Zwecke geforscht werden dürfen.' },
+  { nr:6,  id:'T6',  title:'Zuzugsbeschränkungen für Asylbewerber',
+    text:'Berlin soll aufgehört haben, Asylsuchende über die gesetzliche Aufnahmepflicht hinaus aufzunehmen.' },
+  { nr:7,  id:'T7',  title:'Wahlrecht für Nicht-EU-Bürger bei BVV',
+    text:'Alle in Berlin gemeldeten Einwohner sollen bei Wahlen zu den Bezirksverordnetenversammlungen (BVV) wählen dürfen – unabhängig von ihrer Staatsangehörigkeit.' },
+  { nr:8,  id:'T8',  title:'Schuldenbremse einhalten',
+    text:'Berlin soll die Schuldenbremse ohne Ausnahmen einhalten.' },
+  { nr:9,  id:'T9',  title:'Frauenquote in Führungspositionen landeseigener Betriebe',
+    text:'Für Führungspositionen von landeseigenen Betrieben soll es eine verbindliche Frauenquote geben.' },
+  { nr:10,  id:'T10',  title:'Schwerpunktschulen (schulische Inklusion)',
+    text:'In Berlin soll es mehr inklusive Schwerpunktschulen geben, in denen Kinder mit und ohne Behinderung gemeinsam unterrichtet werden.' },
+];
+
+// pos: 1=agree, 0=neutral, -1=disagree
+// Data layout: [SPD, CDU, GRÜNE, LINKE, AfD, FDP, BSW]
+const DATA = {
+  T1: {
+    pos:  [1, -1, 1, 1, -1, -1, 1],
+    quote:[
+      'Wir schaffen eine neue soziale Wohnungsordnung, die den gemeinwohlorientierten Wohnungsmarkt stärkt und signifikant ausbaut. Dafür nutzen wir alle rechtlichen Möglichkeiten - auch solche, die uns die Verfassung bietet. Dabei ist unser Ziel auch die Einführung eines rechtssicheren Mietendeckels über eine Länderöffnungsklausel über die Bundesgesetzgebung oder auf Grundlage des Art. 15 GG.',
+      'Populistischen Forderungen nach Enteignungen oder der Einführung eines Mietendeckels erteilen wir eine klare Absage. Solche Eingriffe sind keine Lösung für den angespannten Wohnungsmarkt, sondern verschärfen die Situation – sie schrecken Investitionen ab, verhindern Neubau und verringern das Wohnungsangebot.',
+      'Dazu gehören für uns vor allem die Ermöglichung eines Mietendeckels entweder durch eine Länderöffnungsklausel oder als Bundesregelung, eine dauerhafte, starke und effektive Mietpreisbremse mit Sanktion bei Verstößen sowie eine wirksame Reform zur Bekämpfung von Mietwucher und Mietüberteuerung.',
+      'Unsere kommunalen Wohnungen müssen bezahlbar bleiben. Deshalb werden wir dort einen Mietendeckel durchsetzen.',
+      'Weder Mietpreisbremsen noch Kappungsgrenzen bringen Entspannung am Wohnungsmarkt. Dies vermögen nur eine große Zahl von Neubauten und eine höhere Eigentumsquote.',
+      'Mietendeckel lehnen wir in jeglicher Form ab.',
+      'Wir wollen die bestehenden Instrumente der Mietenregulierung schärfen und endlich konsequent durchsetzen und zusätzlich über eine Bundesratsinitiative einen Mietendeckel einführen.',
+    ]
+  },
+  T2: {
+    pos:  [1, -1, 1, 1, 0, -1, 1],
+    quote:[
+      'Die Zustimmung zur Initiative des Volksentscheids „Deutsche Wohnen und Co. Enteignen“ zeigt für uns deutlich, dass eine Mehrheit der Berliner*innen die zügellose Abzocke großer, insbesondere börsennotierter Wohnungsunternehmen ablehnt.',
+      'Enteignungen privaten Eigentums lehnen wir entschieden ab. Solche Eingriffe untergraben Vertrauen, schrecken Investoren ab und gefährden Arbeitsplätze.',
+      'Auch deshalb haben wir Grüne uns dafür eingesetzt, dass der erfolgreiche Volksentscheid „Deutsche Wohnen & Co. enteignen“ umgesetzt wird.',
+      'Im September 2021 haben 59,1 Prozent der Berliner*innen dem Volksentscheid »Deutsche Wohnen & Co enteignen« ihre Zustimmung gegeben. Dieses Votum bietet keinen Interpretationsspielraum: Berlin will vergesellschaften und 220.000 Wohnungen in öffentliche Hand überführen.',
+      'Die Enteignung und Vergesellschaftung privater Wohnungen wird nicht konkret im Wahlprogramm thematisiert.',
+      'Enteignung und Vergesellschaftung privater Wohnungen lehnen wir ab. Dadurch entsteht keine einzige neue Wohnung, es verschwendet Milliardenbeträge, die Berlin für die Entwicklung und die Erschließung von Baugrundstücken und neuen Wohnquartieren einsetzen könnte und schreckt private Investorinnen und Investoren ab, die wir dringend für die Behebung der Wohnungsnot brauchen.',
+      'Die Berliner Politik muss den Willen der Berliner Bevölkerung respektieren und den Volksentscheid „Deutsche Wohnen & Co. enteignen“ umsetzen.',
+    ]
+  },
+  T3: {
+    pos:  [1, -1, 1, 1, -1, -1, -1],
+    quote:[
+      'Auch der schrittweise Rückbau der autogerechten Stadt schafft neue Potenziale.',
+      'Für Familien, für Pendler, Pflegedienste oder Handwerker auf dem Weg zum Kunden - das Auto ist und bleibt für ein funktionierendes Berlin unverzichtbar. Die Leistungsfähigkeit der zentralen Verkehrsachsen werden wir sichern und erhalten.',
+      'Unser Leitbild bleibt klar: ein Berlin, das sich nach den Bedürfnissen der Menschen richtet und nicht nach denen der Autos. Mobilität wird so zu einem Schlüssel für Lebensqualität, Freiheit und Gerechtigkeit. Langfristig wollen wir autozentrierte Strukturen zurückbauen, indem wir alte Autoschneisen wie am Breitenbachplatz zurückbauen und auch weitere Orte, wie beispielsweise den Bundesplatz oder den Innsbrucker Platz, zu menschenfreundlicheren, urbanen und grüneren Plätzen umgestalten.',
+      'Wir wollen den Autoverkehr in Berlin deutlich reduzieren. Es braucht mehr verkehrsberuhigte Straßen und Kieze, in denen sich Menschen sicher und gern bewegen.',
+      'Die AfD ist strikt gegen verkehrspolitische Schikanen, Kostenerhöhungen und vernachlässigte Verkehrswege, mit denen ein Umstieg auf den öffentlichen Nah- und Fernverkehr erzwungen werden soll.',
+      'Statt ideologischer Verkehrspolitik, die Autofahrerinnen und Autofahrer gängelt sowie den ÖPNV vernachlässigt, setzen wir auf ein intelligentes Miteinander aller Verkehrsträgerinnen und -träger.',
+      'Viele Berliner sind auf ihr Auto angewiesen und können sich teure Umstiege nicht einfach leisten. Neue finanzielle Belastungen wie City-Tax-Modelle für Verbrenner lehnen wir daher ab. Klimafreundliche Antriebe sollen gefördert werden, ohne Menschen mit niedrigen und mittleren Einkommen zusätzlich zu belasten.',
+    ]
+  },
+  T4: {
+    pos:  [1, 0, 1, 1, -1, 0, 0],
+    quote:[
+      'Unser Ziel ist klar: Berlin wird bis möglichst vor 2045 klimaneutral.',
+      'Im Wahlprogramm wird das Ziel der Klimaneutralität nicht konkret mit Jahr benannt.',
+      'Berlin muss sich ein Vorbild an Hamburg nehmen, das nun schon 2040 klimaneutral sein will. In Regierungsverantwortung werden wir den Fahrplan zur Klimaneutralität und -anpassung auf solide Beine stellen und Prioritäten setzen, um die Ziele schnellstmöglich zu erreichen.',
+      'Wir wollen, dass Berlin bis spätestens 2040 zu einer klimaneutralen Stadt wird, das im Klimaschutzgesetz verankerte CO2-Budget einhält und so seinen Beitrag zur Einhaltung der Ziele des Pariser Klimaschutzabkommens leistet.',
+      'Unter dem Schlagwort „Klimaneutrales Deutschland 2050“ durch „Dekarbonisierung“ missbraucht die deutsche Regierung die steigende CO2-Konzentration zur „Großen Transformation“ der Gesellschaft, mit der Folge, dass die persönliche und wirtschaftliche Freiheit massiv eingeschränkt wird.',
+      'Die FDP geht nicht auf ein Jahr für das Erreichen von Klimaneutralität ein.',
+      'Das Wahlprogramm enthält keine Informationen zum Klimaneutralitäts-Ziel.',
+    ]
+  },
+  T5: {
+    pos:  [0, 0, 0, -1, 0, 1, -1],
+    quote:[
+      'Es geht nicht eindeudig aus dem Wahlprogramm hervor, ob die SPD sich zu einer Zivilklausel bekennt oder nicht.',
+      'Forschung zum militärischen Zwecke wird nicht thematisert.',
+      'Forschung zum militärischen Zwecke wird nicht thematisert.',
+      'Wir stehen für die Beibehaltung der bestehenden Zivilklauseln an den Hochschulen und die Einführung von Zivilklauseln in der Wirtschaftsförderung.',
+      'Die Freiheit von Forschung und Lehre sind als Grundvoraussetzung für wissenschaftlichen Fortschritt wird betont. Allerdings wird nicht auf Forschung zum militärischen Zweck eingegangen.',
+      'Sogenannte "Zivilklauseln", die militärisch nutzbare Forschung untersagen, lehnen wir ab.',
+      'Universitäten, Hochschulen und Schulen dürfen nicht für militärische und rüstungsfördernde Zwecke missbraucht werden.',
+    ]
+  },
+  T6: {
+    pos:  [-1, 1, -1, -1, 1, 0, 1],
+    quote:[
+      'Wir setzen das EU-Asylsystem (GEAS) menschenrechtskonform um. Beim Bund drängen wir darauf, Landesaufnahmeprogramme zuzulassen. So kann Berlin besonders schutzbedürftige Menschen aufnehmen. Auch Verwandte von Berliner*innen können wir dann gezielt aufnehmen.',
+      'Bestehende Möglichkeiten zur Durchsetzung der Ausreisepflicht sind konsequent zu nutzen. Rückführungen sollen bereits beim ersten Versuch erfolgen können – auch wenn nicht alle Familienangehörigen anzutreffen sind. Fehlende Anwesenheit darf nicht dazu führen, dass sich Ausreisepflichtige der Durchsetzung rechtsstaatlicher Entscheidungen entziehen können. Rückführungen sind zudem ganzjährig durchzuführen, auch in den Wintermonaten.',
+      'Wir setzen uns für die Wiederaufnahme des Berliner Landesaufnahmeprogramms für Geflüchtete aus Syrien, dem Irak und Afghanistan sowie den Ausbau humanitärer Aufnahmeprogramme des Bundes beispielsweise aus Afghanistan, Syrien, Irak und Gaza ein und nutzen zudem die Spielräume des Landes, um die Aufnahme von Geflüchteten zu ermöglichen.',
+      'Wir wollen eine volle soziale und gesundheitliche Versorgung und Unterbringung unabhängig des Aufenthaltsstatus. Wir nutzen unsere Kompetenzen als Bundesland, um Berlin zu einem schützenden Zufluchtsort für Menschen in Not zu machen.',
+      'Die AfD fordert eine konsequentere Anwendung des Asyl- und Abschieberechts und kritisiert die derzeitige Asylpolitik. Eine ausdrückliche Aussage zur Aufnahme von Asylsuchenden über die gesetzliche Aufnahmepflicht hinaus enthält das Wahlprogramm jedoch nicht, allerdings kann angenommen werden, dass eine Begrenzung erwünscht ist.',
+      'FDP spricht sich nicht klar für oder gegen eine generelle Einschränkung über die gesetzliche Pflicht hinaus aus.',
+      'Das BSW wird sich im Berliner Abgeordnetenhaus dafür einsetzen, dass Zuwanderung streng reguliert wird. Wer aus einem sicheren Drittstaat einreist, hat nach unserer Ansicht kein Recht auf ein Asylverfahren und auf soziale Leistungen. Wir unterstützen Grenzkontrollen an allen deutschen Grenzen und die Zurückweisung an der Grenze, solange kein EU-weites Rückführungsabkommen existiert und solange es sich nicht um besonders schutzbedürftige Personen handelt.',
+    ]
+  },
+  T7: {
+    pos:  [0, 0, 1, 1, 0, 0, 0],
+    quote:[
+      'Das Wahlprogramm geht nicht auf die BVV ein.',
+      'Wer bei der BVV wählen darf wird nicht im Wahlprogramm thematisiert',
+      'Wir Bündnisgrüne setzen uns weiterhin sowohl im Land Berlin als auch im Bundesrat dafür ein, dass Menschen, die ihren Lebensmittelpunkt in Berlin haben, unabhängig von ihrer Staatsangehörigkeit an Volksbegehren und -abstimmungen, den Wahlen zum Abgeordnetenhaus und zu den Bezirksverordnetenversammlungen (BVVen) und perspektivisch auch zum Bundestag und zum Europäischen Parlament teilnehmen können.',
+      'Wir wollen, dass alle Menschen, die von politischen Entscheidungen betroffen sind, auch mitentscheiden können. Dass über ein Viertel der Berliner*innen zu den kommunalen Wahlen und Abgeordnetenhauswahlen nicht wählen und sich nicht zur Wahl aufstellen dürfen, stellt ein großes Demokratiedefizit dar. Wir wollen daher für Berlin alle landesrechtlichen Möglichkeiten ausschöpfen, um das passive und aktive Wahlrecht spätestens nach fünf Jahren Aufenthaltszeit in Deutschland für alle Berliner*innen, unabhängig vom Pass, einzuführen. Außerdem werden wir uns weiter auf allen Ebenen dafür einsetzen, ein Wahlrecht für Menschen ohne deutsche Staatsbürgerschaft zu schaffen.',
+      'Die AfD betont, dass politische Rechte an die deutsche Staatsangehörigkeit geknüpft sein sollen, lehnt eine erleichterte Einbürgerung ab und möchte den Erwerb der deutschen Staatsangehörigkeit stärker begrenzen. Ein Wahlrecht für Nicht-Staatsangehörige wird nicht ausdrücklich thematisiert.',
+      'Das Wahlprogramm geht nicht darauf ein, wer bei der BVV wählen darf.',
+      'Die Wahlen zu den BVV werden nicht thematisiert.',
+    ]
+  },
+  T8: {
+    pos:  [-1, 1, -1, -1, 1, 1, 0],
+    quote:[
+      'Wir nutzen die Spielräume der Schuldenbremse aus und fordern vom Bund ihre Abschaffung.',
+      'Solide Haushaltspolitik und die Einhaltung der Schuldenbremse sind für uns eine Frage der Generationengerechtigkeit und bleiben Eckpfeiler für unsere zukünftigen Gestaltungsmöglichkeiten.',
+      'Die Schuldenbremse verhindert weiterhin wichtige Zukunftsinvestitionen – besonders in den Ländern. Wir werden uns deshalb auf Bundesebene für die Abschaffung der Schuldenbremse in ihrer jetzigen Form und eine Reform der Schuldenregeln einsetzen.',
+      'Die Schuldenbremse erweist sich immer noch als Investitionsbremse. Der Bund hat angekündigt die Schuldenbremse reformieren zu wollen; wir stehen gerne mit Rat und Tat zur Seite und gemeinsam mit Verbündeten in anderen Ländern und Kommunen kämpfen wir weiter für die vollständige Abschaffung.',
+      'Die AfD strebt die Rückkehr zu ausgeglichenen Staatshaushalten an. Sie befürwortet die schrittweise Rückführung der ausgeuferten öffentlichen Verschuldung.',
+      'Deshalb halten wir die Schuldenbremse ohne Ausweichhaushalte ein, begrenzen die Staatsquote und geben privaten Investitionen konsequent Vorrang vor staatlicher Expansion.',
+      'BSW positioniert sich nicht eindeutig zur Schuldenbremse.',
+    ]
+  },
+  T9: {
+    pos:  [0, 0, 1, 0, -1, 0, -1],
+    quote:[
+      'Die SPD befürwortet eine stärkere Förderung zur Erhöhung des Frauenanteils in Führungspositionen, geht aber nicht auf eine Quote ein.',
+      'Eine Frauenquote wird nicht thematisiert.',
+      'Die landeseigenen Unternehmen wollen wir weiterhin zu Maßnahmen zur Förderung von Gleichstellung und Diversität verpflichten, bis der Frauenanteil in Führungspositionen bei 50 Prozent liegt.',
+      'Die Linke steht für Gleichstellung in Führungspositionen geht aber nicht auf eine verbindliche Quote ein.',
+      'Die AfD lehnt Geschlechterquoten im Studium oder in der Arbeitswelt generell ab, da Quoten leistungsfeindlich und ungerecht sind und andere Benachteiligungen schaffen.',
+      'Die FDP ist für ein gleichberechtigtes Arbeiten, geht aber nicht konkret auf eine Frauenquote ein.',
+      'Einstellungen und Beförderungen im öffentlichen Dienst haben nur nach Eignung zu erfolgen, nie nach Geschlecht, Herkunft oder anderen Eigenschaften.',
+    ]
+  },
+  T10: {
+    pos:  [1, 0, 1, 1, -1, 0, 0],
+    quote:[
+      'Wir stehen für inklusive Bildung und gemeinsames Lernen von Anfang an. Dazu gehört auch der Ausbau inklusiver Schwerpunktschulen. Die Zahl der sonderpädagogischen Förderzentren wird nicht erweitert, vielmehr erfahren sie eine systematische Transformation zugunsten inklusiver Lösungen.',
+      'Bei Schülerinnen und Schülern mit besonderem Förderbedarf setzen wir auf so viel Inklusion wie möglich und so viel individuelle Förderung wie nötig. Inklusion muss mit Augenmaß und orientiert am Kindeswohl gelingen. Der Ausbau inklusiver Beschulung an den Regelschulen muss daher ebenso wie an den Förderschulen erfolgen. Förderzentren bleiben für uns unverzichtbar.',
+      'Statt neuer Förderschulen schaffen wir inklusive Schwerpunktschulen, um die steigenden Bedarfe, insbesondere von neurodivergenten Schüler*innen, zu decken.',
+      'Kurzfristig wollen wir die inklusiven Schwerpunktschulen als Brückenlösung deutlich ausbauen und die geplanten 36 inklusiven Schwerpunktschulen realisieren. Dazu müssen die notwendigen Investitionsmittel bereitgestellt werden.',
+      'Die ideologisch motivierte Inklusion „um jeden Preis“ verursacht erhebliche Kosten und hemmt behinderte wie nicht behinderte Schüler in ihrem Lernerfolg. Die AfD setzt sich deshalb für den Erhalt der Förder- und Sonderschulen ein.',
+      'Wir setzen uns für eine pluralistische Inklusion ein. Indem wir Förderschulen wieder einführen und bedarfsgerechte Inklusionsklassen stärken, kann den Interessen und Bedürfnissen aller Schülerinnen und Schüler Rechnung getragen werden.',
+      'Wir fordern deshalb den dauerhaften Erhalt der Förderzentren als eigenständige und hochwertige Bildungsorte. Sie stehen gleichberechtigt neben inklusiven Regelschulen und gewährleisten, dass Familien eine echte Wahl haben. Zugleich wollen wir neue Inklusionsmodelle in neuen Regelschulen erproben.',
+    ]
+  },
+};
+
+// ── STATE ───────────────────────────────────────────────────────────────────────
+const clickLog = []; // {thesisId, thesisTitle, partyId, pos, ts}
+
+// ── BUILD TABLE ─────────────────────────────────────────────────────────────────
+function buildTable() {
+  const head = document.getElementById('table-head');
+  const body = document.getElementById('table-body');
+
+  // Header row
+  let hRow = '<tr><th style="text-align:left;padding-left:.75rem;"><span style="font-size:.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">These</span></th>';
+  PARTIES.forEach(p => {
+    hRow += `<th>
+      <span class="party-pill" style="background:${p.color};color:${p.fg}">${p.name}</span>
+    </th>`;
+  });
+  hRow += '</tr>';
+  head.innerHTML = hRow;
+
+  // Body rows
+  let bodyHtml = '';
+  THESES.forEach(t => {
+    bodyHtml += '<tr>';
+    bodyHtml += `<td class="issue-cell">
+      <span class="issue-num">These ${t.nr}</span>
+      <span class="issue-name">${t.title}</span>
+    </td>`;
+    const d = DATA[t.id];
+    PARTIES.forEach((p, pi) => {
+      const posVal = d.pos[pi];
+      const cls = posVal === 1 ? 'agree' : posVal === -1 ? 'disagree' : 'neutral';
+      const icon = posVal === 1 ? '✓' : posVal === -1 ? '✗' : '–';
+      const label = posVal === 1 ? 'Stimmt zu' : posVal === -1 ? 'Lehnt ab' : 'Neutral';
+      bodyHtml += `<td class="pos-cell ${cls}" 
+        id="cell-${t.id}-${p.id}"
+        onclick="openModal('${t.id}','${p.id}')"
+        title="${p.name}: ${label} – Klicken zum Lesen">
+        <div class="cell-inner">
+          <span class="cell-icon">${icon}</span>
+          <span class="cell-label">${label}</span>
+          <span class="cell-read">Lesen ↗</span>
+        </div>
+      </td>`;
+    });
+    bodyHtml += '</tr>';
+  });
+  body.innerHTML = bodyHtml;
+}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────────
+function openModal(thesisId, partyId) {
+  const t = THESES.find(x => x.id === thesisId);
+  const p = PARTIES.find(x => x.id === partyId);
+  const pi = PARTIES.indexOf(p);
+  const d = DATA[thesisId];
+  const posVal = d.pos[pi];
+  const cls = posVal === 1 ? 'agree' : posVal === -1 ? 'disagree' : 'neutral';
+  const posLabel = posVal === 1 ? '✓ Stimmt zu' : posVal === -1 ? '✗ Lehnt ab' : '– Neutral';
+
+  // Fill modal
+  document.getElementById('modal-party-badge').textContent = p.name;
+  document.getElementById('modal-party-badge').style.background = p.color;
+  document.getElementById('modal-party-badge').style.color = p.fg;
+  document.getElementById('modal-issue-num').textContent = `These ${t.nr} von 10`;
+  document.getElementById('modal-issue-title').textContent = t.title;
+  document.getElementById('modal-thesis-text').textContent = t.text;
+
+  const chip = document.getElementById('modal-pos-chip');
+  chip.textContent = posLabel;
+  chip.className = `modal-pos-chip ${cls}`;
+
+  document.getElementById('modal-stripe').style.background = p.color;
+  document.getElementById('modal-quote').textContent = d.quote[pi];
+
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Record click
+  const ts = new Date().toISOString();
+  clickLog.push({ thesisId, thesisTitle: t.title, thesisNr: t.nr, partyId: p.id, posVal, ts });
+
+  // Mark cell as opened
+  const cell = document.getElementById(`cell-${thesisId}-${partyId}`);
+  if (cell) cell.classList.add('opened');
+
+  updateStats();
+  updateLog();
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+// ── STATS & LOG ──────────────────────────────────────────────────────────────────
+function updateStats() {
+  const total = clickLog.length;
+  const unique = new Set(clickLog.map(c => `${c.thesisId}|${c.partyId}`)).size;
+  const theses = new Set(clickLog.map(c => c.thesisId)).size;
+  const parties = new Set(clickLog.map(c => c.partyId)).size;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-unique').textContent = unique;
+  document.getElementById('stat-theses').textContent = theses;
+  document.getElementById('stat-parties').textContent = parties;
+  document.getElementById('click-counter').textContent =
+    `${unique} Eintrag${unique !== 1 ? 'e' : ''} geöffnet`;
+}
+
+function updateLog() {
+  const total = clickLog.length;
+  const unique = new Set(clickLog.map(c => `${c.thesisId}|${c.partyId}`)).size;
+  const thesesSeen = new Set(clickLog.map(c => c.thesisId));
+  const partiesSeen = new Set(clickLog.map(c => c.partyId));
+
+  const posLabel = v => v === 1 ? 'stimmt zu' : v === -1 ? 'lehnt ab' : 'neutral';
+
+  let lines = [];
+  lines.push('=== Wahlprogramm-Explorer – Leseprotokoll ===');
+  lines.push(`Berliner Abgeordnetenhauswahl 2026`);
+  lines.push(`Erstellt: ${new Date().toLocaleString('de-DE')}`);
+  lines.push('');
+  lines.push(`Klicks gesamt: ${total} | Einzigartige Zellen: ${unique} | Thesen: ${thesesSeen.size}/10 | Parteien: ${partiesSeen.size}/7`);
+  lines.push('');
+  lines.push('--- Gelesene Einträge (chronologisch) ---');
+  clickLog.forEach((c, i) => {
+    const time = new Date(c.ts).toLocaleTimeString('de-DE');
+    lines.push(`${i+1}. These ${c.thesisNr} (${c.thesisTitle}) × ${c.partyId} [${posLabel(c.posVal)}] — ${time}`);
+  });
+  lines.push('');
+
+  // Summary by thesis
+  lines.push('--- Übersicht nach These ---');
+  THESES.forEach(t => {
+    const hits = clickLog.filter(c => c.thesisId === t.id);
+    if (hits.length === 0) return;
+    const partyList = [...new Set(hits.map(c => c.partyId))].join(', ');
+    lines.push(`These ${t.nr} (${t.title}): ${partyList} (${hits.length}× gelesen)`);
+  });
+  lines.push('');
+
+  // Summary by party
+  lines.push('--- Übersicht nach Partei ---');
+  PARTIES.forEach(p => {
+    const hits = clickLog.filter(c => c.partyId === p.id);
+    if (hits.length === 0) return;
+    const thesisList = [...new Set(hits.map(c => `These ${c.thesisNr}`))].join(', ');
+    lines.push(`${p.id}: ${thesisList} (${hits.length}× gelesen)`);
+  });
+
+  document.getElementById('tracker-output').value = lines.join('\n');
+
+  // Qualtrics bridge
+  try {
+    window.parent.postMessage(JSON.stringify({
+      type: 'manifesto-explorer-log',
+      totalClicks: total,
+      uniqueCells: unique,
+      thesesExplored: thesesSeen.size,
+      partiesExplored: partiesSeen.size,
+      log: clickLog
+    }), '*');
+  } catch(e) {}
+}
+
+function copyLog() {
+  const ta = document.getElementById('tracker-output');
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  try {
+    navigator.clipboard.writeText(ta.value).catch(() => document.execCommand('copy'));
+  } catch(e) { document.execCommand('copy'); }
+  const btn = document.getElementById('copy-btn');
+  btn.classList.add('copied');
+  btn.textContent = '✓ Kopiert!';
+  setTimeout(() => {
+    btn.classList.remove('copied');
+    btn.textContent = '⎘ Protokoll kopieren';
+  }, 2500);
+}
+
+// ── INIT ────────────────────────────────────────────────────────────────────────
+buildTable();
+updateStats();
+updateLog();
+</script>
+</body>
+</html>
