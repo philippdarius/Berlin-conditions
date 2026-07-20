@@ -1,0 +1,1453 @@
+<style>
+  .manifesto-explorer,
+  .manifesto-explorer * {
+    box-sizing: border-box;
+  }
+
+  .manifesto-explorer {
+    max-width: 900px;
+    margin: 0 auto;
+    color: #172033;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .explorer-header {
+    margin-bottom: 12px;
+    padding: 20px 22px;
+    color: #fff;
+    background: #172033;
+    border-radius: 10px;
+  }
+
+  .explorer-header h1 {
+    margin: 0 0 4px;
+    color: inherit;
+    font-size: 1.35rem;
+  }
+
+  .explorer-header p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.9rem;
+  }
+
+  .instructions {
+    margin: 0 0 18px;
+    color: #667085;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .issue {
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #dfe3e8;
+    border-radius: 10px;
+  }
+
+  .manifesto-explorer summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .manifesto-explorer summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .issue > summary {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+    min-height: 68px;
+    padding: 13px 16px;
+    font-weight: 700;
+  }
+
+  .issue > summary:hover,
+  .party > summary:hover {
+    background: #f9fafb;
+  }
+
+  .issue > summary::after,
+  .party > summary::after {
+    content: "⌄";
+    color: #667085;
+    font-size: 1.1rem;
+    transition: transform 0.16s ease;
+  }
+
+  .issue[open] > summary::after,
+  .party[open] > summary::after {
+    transform: rotate(180deg);
+  }
+
+  .issue-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    color: #fff;
+    background: #344054;
+    border-radius: 50%;
+    font-size: 0.86rem;
+  }
+
+  .issue-content {
+    padding: 0 16px 16px;
+    background: #f5f6f8;
+    border-top: 1px solid #dfe3e8;
+  }
+
+  .thesis {
+    margin: 0 0 12px;
+    padding: 14px 2px 0;
+    color: #475467;
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .party {
+    margin-bottom: 8px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #dfe3e8;
+    border-radius: 8px;
+  }
+
+  .party[open] {
+    border-color: var(--party-color);
+  }
+
+  .party > summary {
+    display: grid;
+    grid-template-columns: 5px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 10px 12px;
+    font-weight: 700;
+  }
+
+  .party > summary::before {
+    content: "";
+    width: 5px;
+    height: 28px;
+    background: var(--party-color);
+    border-radius: 99px;
+  }
+
+  .quote-content {
+    padding: 14px 16px 16px 27px;
+    border-top: 1px solid #dfe3e8;
+  }
+
+  .quote-label {
+    margin-bottom: 6px;
+    color: #667085;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .manifesto-explorer blockquote {
+    margin: 0;
+    padding-left: 14px;
+    color: #344054;
+    border-left: 3px solid var(--party-color);
+    font-size: 0.94rem;
+    font-style: normal;
+    line-height: 1.65;
+  }
+
+  .manifesto-explorer summary:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.32);
+    outline-offset: -3px;
+  }
+
+  @media (max-width: 600px) {
+    .explorer-header {
+      padding: 17px;
+    }
+
+    .issue > summary {
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .issue-content {
+      padding: 0 10px 10px;
+    }
+
+    .quote-content {
+      padding: 12px 12px 14px 19px;
+    }
+  }
+</style>
+
+<div class="manifesto-explorer" lang="de">
+
+  <header class="explorer-header">
+    <h1>Wahlprogramm-Explorer</h1>
+    <p>10 politische Themen · 7 Parteien</p>
+  </header>
+
+  <p class="instructions">
+    &Ouml;ffnen Sie zun&auml;chst ein Thema. Anschlie&szlig;end k&ouml;nnen Sie die
+    Wahlprogramm-Ausz&uuml;ge der einzelnen Parteien &ouml;ffnen und miteinander
+    vergleichen.
+  </p>
+
+  <!-- THEMA 1 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">1</span>
+      <span>Mietendeckel</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        Berlin soll einen Mietendeckel f&uuml;r landeseigene
+        Wohnungsunternehmen einf&uuml;hren.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir schaffen eine neue soziale Wohnungsordnung, die den
+            gemeinwohlorientierten Wohnungsmarkt st&auml;rkt und signifikant
+            ausbaut. Daf&uuml;r nutzen wir alle rechtlichen M&ouml;glichkeiten – auch
+            solche, die uns die Verfassung bietet. Dabei ist unser Ziel auch
+            die Einf&uuml;hrung eines rechtssicheren Mietendeckels über eine
+            L&auml;nder&ouml;ffnungsklausel über die Bundesgesetzgebung oder auf
+            Grundlage des Art. 15 GG.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Populistischen Forderungen nach Enteignungen oder der Einf&uuml;hrung
+            eines Mietendeckels erteilen wir eine klare Absage. Solche
+            Eingriffe sind keine L&ouml;sung f&uuml;r den angespannten Wohnungsmarkt,
+            sondern versch&auml;rfen die Situation – sie schrecken Investitionen
+            ab, verhindern Neubau und verringern das Wohnungsangebot.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Dazu geh&ouml;ren f&uuml;r uns vor allem die Erm&ouml;glichung eines
+            Mietendeckels entweder durch eine L&auml;nder&ouml;ffnungsklausel oder als
+            Bundesregelung, eine dauerhafte, starke und effektive
+            Mietpreisbremse mit Sanktion bei Verst&ouml;&szlig;en sowie eine wirksame
+            Reform zur Bek&auml;mpfung von Mietwucher und Mietüberteuerung.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Unsere kommunalen Wohnungen m&uuml;ssen bezahlbar bleiben. Deshalb
+            werden wir dort einen Mietendeckel durchsetzen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Weder Mietpreisbremsen noch Kappungsgrenzen bringen Entspannung am
+            Wohnungsmarkt. Dies verm&ouml;gen nur eine gro&szlig;e Zahl von Neubauten und
+            eine h&ouml;here Eigentumsquote.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Mietendeckel lehnen wir in jeglicher Form ab.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir wollen die bestehenden Instrumente der Mietenregulierung
+            sch&auml;rfen und endlich konsequent durchsetzen und zus&auml;tzlich über
+            eine Bundesratsinitiative einen Mietendeckel einf&uuml;hren.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 2 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">2</span>
+      <span>Vergesellschaftung gro&szlig;er Wohnungskonzerne</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        Gro&szlig;e Berliner Wohnungskonzerne ab 3.000 Wohneinheiten sollen
+        vergesellschaftet werden.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die Zustimmung zur Initiative des Volksentscheids „Deutsche
+            Wohnen und Co. Enteignen“ zeigt f&uuml;r uns deutlich, dass eine
+            Mehrheit der Berliner*innen die z&uuml;gellose Abzocke gro&szlig;er,
+            insbesondere b&ouml;rsennotierter Wohnungsunternehmen ablehnt.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Enteignungen privaten Eigentums lehnen wir entschieden ab. Solche
+            Eingriffe untergraben Vertrauen, schrecken Investoren ab und
+            gef&auml;hrden Arbeitspl&auml;tze.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Auch deshalb haben wir Gr&uuml;ne uns daf&uuml;r eingesetzt, dass der
+            erfolgreiche Volksentscheid „Deutsche Wohnen &amp; Co. enteignen“
+            umgesetzt wird.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Im September 2021 haben 59,1 Prozent der Berliner*innen dem
+            Volksentscheid »Deutsche Wohnen &amp; Co enteignen« ihre
+            Zustimmung gegeben. Dieses Votum bietet keinen
+            Interpretationsspielraum: Berlin will vergesellschaften und
+            220.000 Wohnungen in &ouml;ffentliche Hand überf&uuml;hren.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die Enteignung und Vergesellschaftung privater Wohnungen wird
+            nicht konkret im Wahlprogramm thematisiert.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Enteignung und Vergesellschaftung privater Wohnungen lehnen wir
+            ab. Dadurch entsteht keine einzige neue Wohnung, es verschwendet
+            Milliardenbetr&auml;ge, die Berlin f&uuml;r die Entwicklung und die
+            Erschlie&szlig;ung von Baugrundst&uuml;cken und neuen Wohnquartieren einsetzen
+            k&ouml;nnte und schreckt private Investorinnen und Investoren ab, die
+            wir dringend f&uuml;r die Behebung der Wohnungsnot brauchen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die Berliner Politik muss den Willen der Berliner Bev&ouml;lkerung
+            respektieren und den Volksentscheid „Deutsche Wohnen &amp; Co.
+            enteignen“ umsetzen.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 3 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">3</span>
+      <span>Autoverkehr Einschr&auml;nkungen</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        Berlin soll den motorisierten Individualverkehr st&auml;rker einschr&auml;nken,
+        zum Beispiel durch Parkraumreduzierung oder autofreie Zonen.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Auch der schrittweise R&uuml;ckbau der autogerechten Stadt schafft neue
+            Potenziale.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            F&uuml;r Familien, f&uuml;r Pendler, Pflegedienste oder Handwerker auf dem
+            Weg zum Kunden – das Auto ist und bleibt f&uuml;r ein funktionierendes
+            Berlin unverzichtbar. Die Leistungsf&auml;higkeit der zentralen
+            Verkehrsachsen werden wir sichern und erhalten.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Unser Leitbild bleibt klar: ein Berlin, das sich nach den
+            Bed&uuml;rfnissen der Menschen richtet und nicht nach denen der Autos.
+            Mobilit&auml;t wird so zu einem Schl&uuml;ssel f&uuml;r Lebensqualit&auml;t, Freiheit
+            und Gerechtigkeit. Langfristig wollen wir autozentrierte Strukturen
+            zur&uuml;ckbauen, indem wir alte Autoschneisen wie am Breitenbachplatz
+            zur&uuml;ckbauen und auch weitere Orte, wie beispielsweise den
+            Bundesplatz oder den Innsbrucker Platz, zu menschenfreundlicheren,
+            urbaneren und gr&uuml;neren Pl&auml;tzen umgestalten.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir wollen den Autoverkehr in Berlin deutlich reduzieren. Es
+            braucht mehr verkehrsberuhigte Stra&szlig;en und Kieze, in denen sich
+            Menschen sicher und gern bewegen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die AfD ist strikt gegen verkehrspolitische Schikanen,
+            Kostenerh&ouml;hungen und vernachl&auml;ssigte Verkehrswege, mit denen ein
+            Umstieg auf den &ouml;ffentlichen Nah- und Fernverkehr erzwungen werden
+            soll.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Statt ideologischer Verkehrspolitik, die Autofahrerinnen und
+            Autofahrer g&auml;ngelt sowie den &Ouml;PNV vernachl&auml;ssigt, setzen wir auf
+            ein intelligentes Miteinander aller Verkehrstr&auml;gerinnen und
+            -tr&auml;ger.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Viele Berliner sind auf ihr Auto angewiesen und k&ouml;nnen sich teure
+            Umstiege nicht einfach leisten. Neue finanzielle Belastungen wie
+            City-Tax-Modelle f&uuml;r Verbrenner lehnen wir daher ab.
+            Klimafreundliche Antriebe sollen gef&ouml;rdert werden, ohne Menschen
+            mit niedrigen und mittleren Einkommen zus&auml;tzlich zu belasten.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 4 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">4</span>
+      <span>Klimaneutralit&auml;t Berlin 2045</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        Berlin soll bis 2045 klimaneutral sein.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Unser Ziel ist klar: Berlin wird bis m&ouml;glichst vor 2045
+            klimaneutral.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Im Wahlprogramm wird das Ziel der Klimaneutralit&auml;t nicht konkret
+            mit Jahr benannt.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Berlin muss sich ein Vorbild an Hamburg nehmen, das nun schon 2040
+            klimaneutral sein will. In Regierungsverantwortung werden wir den
+            Fahrplan zur Klimaneutralit&auml;t und -anpassung auf solide Beine
+            stellen und Priorit&auml;ten setzen, um die Ziele schnellstm&ouml;glich zu
+            erreichen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir wollen, dass Berlin bis sp&auml;testens 2040 zu einer
+            klimaneutralen Stadt wird, das im Klimaschutzgesetz verankerte
+            CO2-Budget einh&auml;lt und so seinen Beitrag zur Einhaltung der Ziele
+            des Pariser Klimaschutzabkommens leistet.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Unter dem Schlagwort „Klimaneutrales Deutschland 2050“ durch
+            „Dekarbonisierung“ missbraucht die deutsche Regierung die
+            steigende CO2-Konzentration zur „Gro&szlig;en Transformation“ der
+            Gesellschaft, mit der Folge, dass die pers&ouml;nliche und
+            wirtschaftliche Freiheit massiv eingeschr&auml;nkt wird.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die FDP geht nicht auf ein Jahr f&uuml;r das Erreichen von
+            Klimaneutralit&auml;t ein.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Das Wahlprogramm enth&auml;lt keine Informationen zum
+            Klimaneutralit&auml;ts-Ziel.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 5 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">5</span>
+      <span>Milit&auml;rische Forschung Hochschulen</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        An Berliner Hochschulen soll f&uuml;r milit&auml;rische Zwecke geforscht werden
+        d&uuml;rfen.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Es geht nicht eindeutig aus dem Wahlprogramm hervor, ob die SPD
+            sich zu einer Zivilklausel bekennt oder nicht.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Forschung zu milit&auml;rischen Zwecken wird nicht thematisiert.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Forschung zu milit&auml;rischen Zwecken wird nicht thematisiert.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir stehen f&uuml;r die Beibehaltung der bestehenden Zivilklauseln an
+            den Hochschulen und die Einf&uuml;hrung von Zivilklauseln in der
+            Wirtschaftsf&ouml;rderung.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die Freiheit von Forschung und Lehre wird als Grundvoraussetzung
+            f&uuml;r wissenschaftlichen Fortschritt betont. Allerdings wird nicht
+            auf Forschung zu milit&auml;rischen Zwecken eingegangen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Sogenannte „Zivilklauseln“, die milit&auml;risch nutzbare Forschung
+            untersagen, lehnen wir ab.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Universit&auml;ten, Hochschulen und Schulen d&uuml;rfen nicht f&uuml;r
+            milit&auml;rische und r&uuml;stungsf&ouml;rdernde Zwecke missbraucht werden.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 6 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">6</span>
+      <span>Zuzugsbeschr&auml;nkungen f&uuml;r Asylbewerber</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        Berlin soll aufh&ouml;ren, Asylsuchende über die gesetzliche
+        Aufnahmepflicht hinaus aufzunehmen.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir setzen das EU-Asylsystem (GEAS) menschenrechtskonform um. Beim
+            Bund dr&auml;ngen wir darauf, Landesaufnahmeprogramme zuzulassen. So
+            kann Berlin besonders schutzbed&uuml;rftige Menschen aufnehmen. Auch
+            Verwandte von Berliner*innen k&ouml;nnen wir dann gezielt aufnehmen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Bestehende M&ouml;glichkeiten zur Durchsetzung der Ausreisepflicht sind
+            konsequent zu nutzen. R&uuml;ckf&uuml;hrungen sollen bereits beim ersten
+            Versuch erfolgen k&ouml;nnen – auch wenn nicht alle Familienangeh&ouml;rigen
+            anzutreffen sind. Fehlende Anwesenheit darf nicht dazu f&uuml;hren, dass
+            sich Ausreisepflichtige der Durchsetzung rechtsstaatlicher
+            Entscheidungen entziehen k&ouml;nnen. R&uuml;ckf&uuml;hrungen sind zudem
+            ganzj&auml;hrig durchzuf&uuml;hren, auch in den Wintermonaten.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir setzen uns f&uuml;r die Wiederaufnahme des Berliner
+            Landesaufnahmeprogramms f&uuml;r Gefl&uuml;chtete aus Syrien, dem Irak und
+            Afghanistan sowie den Ausbau humanit&auml;rer Aufnahmeprogramme des
+            Bundes beispielsweise aus Afghanistan, Syrien, Irak und Gaza ein
+            und nutzen zudem die Spielr&auml;ume des Landes, um die Aufnahme von
+            Gefl&uuml;chteten zu erm&ouml;glichen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir wollen eine volle soziale und gesundheitliche Versorgung und
+            Unterbringung unabh&auml;ngig des Aufenthaltsstatus. Wir nutzen unsere
+            Kompetenzen als Bundesland, um Berlin zu einem sch&uuml;tzenden
+            Zufluchtsort f&uuml;r Menschen in Not zu machen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die AfD fordert eine konsequentere Anwendung des Asyl- und
+            Abschieberechts und kritisiert die derzeitige Asylpolitik. Eine
+            ausdr&uuml;ckliche Aussage zur Aufnahme von Asylsuchenden über die
+            gesetzliche Aufnahmepflicht hinaus enth&auml;lt das Wahlprogramm jedoch
+            nicht.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die FDP spricht sich nicht klar f&uuml;r oder gegen eine generelle
+            Einschr&auml;nkung über die gesetzliche Pflicht hinaus aus.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Das BSW wird sich im Berliner Abgeordnetenhaus daf&uuml;r einsetzen,
+            dass Zuwanderung streng reguliert wird. Wer aus einem sicheren
+            Drittstaat einreist, hat nach unserer Ansicht kein Recht auf ein
+            Asylverfahren und auf soziale Leistungen. Wir unterst&uuml;tzen
+            Grenzkontrollen an allen deutschen Grenzen und die Zur&uuml;ckweisung
+            an der Grenze, solange kein EU-weites R&uuml;ckf&uuml;hrungsabkommen
+            existiert und solange es sich nicht um besonders
+            schutzbed&uuml;rftige Personen handelt.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 7 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">7</span>
+      <span>Wahlrecht f&uuml;r Nicht-EU-B&uuml;rger bei BVV</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        Alle in Berlin gemeldeten Einwohner sollen bei Wahlen zu den
+        Bezirksverordnetenversammlungen w&auml;hlen d&uuml;rfen – unabh&auml;ngig von ihrer
+        Staatsangeh&ouml;rigkeit.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Das Wahlprogramm geht nicht auf die BVV ein.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wer bei der BVV w&auml;hlen darf, wird nicht im Wahlprogramm
+            thematisiert.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir B&uuml;ndnisgr&uuml;ne setzen uns weiterhin sowohl im Land Berlin als
+            auch im Bundesrat daf&uuml;r ein, dass Menschen, die ihren
+            Lebensmittelpunkt in Berlin haben, unabh&auml;ngig von ihrer
+            Staatsangeh&ouml;rigkeit an Volksbegehren und -abstimmungen, den Wahlen
+            zum Abgeordnetenhaus und zu den
+            Bezirksverordnetenversammlungen und perspektivisch auch zum
+            Bundestag und zum Europ&auml;ischen Parlament teilnehmen k&ouml;nnen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir wollen, dass alle Menschen, die von politischen Entscheidungen
+            betroffen sind, auch mitentscheiden k&ouml;nnen. Dass über ein Viertel
+            der Berliner*innen zu den kommunalen Wahlen und
+            Abgeordnetenhauswahlen nicht w&auml;hlen und sich nicht zur Wahl
+            aufstellen d&uuml;rfen, stellt ein gro&szlig;es Demokratiedefizit dar. Wir
+            wollen daher f&uuml;r Berlin alle landesrechtlichen M&ouml;glichkeiten
+            aussch&ouml;pfen, um das passive und aktive Wahlrecht sp&auml;testens nach
+            f&uuml;nf Jahren Aufenthaltszeit in Deutschland f&uuml;r alle
+            Berliner*innen, unabh&auml;ngig vom Pass, einzuf&uuml;hren.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die AfD betont, dass politische Rechte an die deutsche
+            Staatsangeh&ouml;rigkeit gekn&uuml;pft sein sollen, lehnt eine erleichterte
+            Einb&uuml;rgerung ab und m&ouml;chte den Erwerb der deutschen
+            Staatsangeh&ouml;rigkeit st&auml;rker begrenzen. Ein Wahlrecht f&uuml;r
+            Nicht-Staatsangeh&ouml;rige wird nicht ausdr&uuml;cklich thematisiert.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Das Wahlprogramm geht nicht darauf ein, wer bei der BVV w&auml;hlen
+            darf.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die Wahlen zu den BVV werden nicht thematisiert.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 8 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">8</span>
+      <span>Schuldenbremse einhalten</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        Berlin soll die Schuldenbremse ohne Ausnahmen einhalten.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir nutzen die Spielr&auml;ume der Schuldenbremse aus und fordern vom
+            Bund ihre Abschaffung.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Solide Haushaltspolitik und die Einhaltung der Schuldenbremse sind
+            f&uuml;r uns eine Frage der Generationengerechtigkeit und bleiben
+            Eckpfeiler f&uuml;r unsere zuk&uuml;nftigen Gestaltungsm&ouml;glichkeiten.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die Schuldenbremse verhindert weiterhin wichtige
+            Zukunftsinvestitionen – besonders in den L&auml;ndern. Wir werden uns
+            deshalb auf Bundesebene f&uuml;r die Abschaffung der Schuldenbremse in
+            ihrer jetzigen Form und eine Reform der Schuldenregeln einsetzen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die Schuldenbremse erweist sich immer noch als Investitionsbremse.
+            Der Bund hat angek&uuml;ndigt, die Schuldenbremse reformieren zu wollen;
+            wir stehen gerne mit Rat und Tat zur Seite und gemeinsam mit
+            Verb&uuml;ndeten in anderen L&auml;ndern und Kommunen k&auml;mpfen wir weiter f&uuml;r
+            die vollst&auml;ndige Abschaffung.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die AfD strebt die R&uuml;ckkehr zu ausgeglichenen Staatshaushalten an.
+            Sie bef&uuml;rwortet die schrittweise R&uuml;ckf&uuml;hrung der ausgeuferten
+            &ouml;ffentlichen Verschuldung.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Deshalb halten wir die Schuldenbremse ohne Ausweichhaushalte ein,
+            begrenzen die Staatsquote und geben privaten Investitionen
+            konsequent Vorrang vor staatlicher Expansion.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            BSW positioniert sich nicht eindeutig zur Schuldenbremse.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 9 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">9</span>
+      <span>Frauenquote in F&uuml;hrungspositionen landeseigener Betriebe</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        F&uuml;r F&uuml;hrungspositionen von landeseigenen Betrieben soll es eine
+        verbindliche Frauenquote geben.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die SPD bef&uuml;rwortet eine st&auml;rkere F&ouml;rderung zur Erh&ouml;hung des
+            Frauenanteils in F&uuml;hrungspositionen, geht aber nicht auf eine Quote
+            ein.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Eine Frauenquote wird nicht thematisiert.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die landeseigenen Unternehmen wollen wir weiterhin zu Ma&szlig;nahmen
+            zur F&ouml;rderung von Gleichstellung und Diversit&auml;t verpflichten, bis
+            der Frauenanteil in F&uuml;hrungspositionen bei 50 Prozent liegt.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die Linke steht f&uuml;r Gleichstellung in F&uuml;hrungspositionen, geht
+            aber nicht auf eine verbindliche Quote ein.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die AfD lehnt Geschlechterquoten im Studium oder in der Arbeitswelt
+            generell ab, da Quoten leistungsfeindlich und ungerecht sind und
+            andere Benachteiligungen schaffen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die FDP ist f&uuml;r ein gleichberechtigtes Arbeiten, geht aber nicht
+            konkret auf eine Frauenquote ein.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Einstellungen und Bef&ouml;rderungen im &ouml;ffentlichen Dienst haben nur
+            nach Eignung zu erfolgen, nie nach Geschlecht, Herkunft oder
+            anderen Eigenschaften.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- THEMA 10 -->
+  <details class="issue" name="political-issues">
+    <summary>
+      <span class="issue-number">10</span>
+      <span>Schwerpunktschulen (schulische Inklusion)</span>
+    </summary>
+
+    <div class="issue-content">
+      <p class="thesis">
+        In Berlin soll es mehr inklusive Schwerpunktschulen geben, in denen
+        Kinder mit und ohne Behinderung gemeinsam unterrichtet werden.
+      </p>
+
+      <details class="party" style="--party-color:#e3000f">
+        <summary>SPD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir stehen f&uuml;r inklusive Bildung und gemeinsames Lernen von Anfang
+            an. Dazu geh&ouml;rt auch der Ausbau inklusiver Schwerpunktschulen. Die
+            Zahl der sonderp&auml;dagogischen F&ouml;rderzentren wird nicht erweitert,
+            vielmehr erfahren sie eine systematische Transformation zugunsten
+            inklusiver L&ouml;sungen.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1a1a1a">
+        <summary>CDU</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Bei Sch&uuml;lerinnen und Sch&uuml;lern mit besonderem F&ouml;rderbedarf setzen
+            wir auf so viel Inklusion wie m&ouml;glich und so viel individuelle
+            F&ouml;rderung wie n&ouml;tig. Inklusion muss mit Augenma&szlig; und orientiert am
+            Kindeswohl gelingen. Der Ausbau inklusiver Beschulung an den
+            Regelschulen muss daher ebenso wie an den F&ouml;rderschulen erfolgen.
+            F&ouml;rderzentren bleiben f&uuml;r uns unverzichtbar.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#1fa12d">
+        <summary>GR&Uuml;NE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Statt neuer F&ouml;rderschulen schaffen wir inklusive
+            Schwerpunktschulen, um die steigenden Bedarfe, insbesondere von
+            neurodivergenten Sch&uuml;ler*innen, zu decken.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#be3075">
+        <summary>LINKE</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Kurzfristig wollen wir die inklusiven Schwerpunktschulen als
+            Br&uuml;ckenl&ouml;sung deutlich ausbauen und die geplanten 36 inklusiven
+            Schwerpunktschulen realisieren. Dazu m&uuml;ssen die notwendigen
+            Investitionsmittel bereitgestellt werden.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#009ee0">
+        <summary>AfD</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Die ideologisch motivierte Inklusion „um jeden Preis“ verursacht
+            erhebliche Kosten und hemmt behinderte wie nicht behinderte Sch&uuml;ler
+            in ihrem Lernerfolg. Die AfD setzt sich deshalb f&uuml;r den Erhalt der
+            F&ouml;rder- und Sonderschulen ein.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#ffed00">
+        <summary>FDP</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir setzen uns f&uuml;r eine pluralistische Inklusion ein. Indem wir
+            F&ouml;rderschulen wieder einf&uuml;hren und bedarfsgerechte
+            Inklusionsklassen st&auml;rken, kann den Interessen und Bed&uuml;rfnissen
+            aller Sch&uuml;lerinnen und Sch&uuml;ler Rechnung getragen werden.
+          </blockquote>
+        </div>
+      </details>
+
+      <details class="party" style="--party-color:#7a1f7a">
+        <summary>BSW</summary>
+        <div class="quote-content">
+          <div class="quote-label">Wahlprogramm-Auszug</div>
+          <blockquote>
+            Wir fordern deshalb den dauerhaften Erhalt der F&ouml;rderzentren als
+            eigenst&auml;ndige und hochwertige Bildungsorte. Sie stehen
+            gleichberechtigt neben inklusiven Regelschulen und gew&auml;hrleisten,
+            dass Familien eine echte Wahl haben. Zugleich wollen wir neue
+            Inklusionsmodelle in neuen Regelschulen erproben.
+          </blockquote>
+        </div>
+      </details>
+    </div>
+  </details>
+
+</div>
+<script>
+window.Qualtrics = window.Qualtrics || {
+  SurveyEngine: {
+    addOnReady: function (fn) {
+      document.addEventListener('DOMContentLoaded', function () {
+        fn.call({
+          getQuestionContainer: function () {
+            return document;
+          }
+        });
+      });
+    },
+    setEmbeddedData: function (key, value) {
+      window.__qualtricsEmbeddedData = window.__qualtricsEmbeddedData || {};
+      window.__qualtricsEmbeddedData[key] = value;
+    }
+  }
+};
+
+Qualtrics.SurveyEngine.addOnReady(function () {
+  var questionContainer = this.getQuestionContainer();
+  var explorer = questionContainer.querySelector('.manifesto-explorer');
+  if (!explorer || explorer.getAttribute('data-tracking-ready') === 'true') return;
+  explorer.setAttribute('data-tracking-ready', 'true');
+
+  var readingLog = [];
+  var uniqueEntries = {};
+  var issuesExplored = {};
+  var partiesExplored = {};
+  var startedAt = new Date();
+
+  var trackerStyle = document.createElement('style');
+  trackerStyle.textContent =
+    '.manifesto-tracker,.manifesto-tracker *{box-sizing:border-box;}' +
+    '.manifesto-tracker{margin-top:28px;padding:22px;color:#172033;background:#fff;border:1px solid #dfe3e8;border-radius:10px;font-family:Arial,Helvetica,sans-serif;}' +
+    '.manifesto-tracker-title{margin:0 0 4px;font-size:1.1rem;font-weight:700;}' +
+    '.manifesto-tracker-description{margin:0 0 18px;color:#667085;font-size:.88rem;line-height:1.5;}' +
+    '.manifesto-tracker-stats{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:12px;margin-bottom:18px;}' +
+    '.manifesto-stat{padding:12px 8px;text-align:center;background:#f5f6f8;border-radius:8px;}' +
+    '.manifesto-stat-number{display:block;margin-bottom:3px;color:#344054;font-size:1.55rem;font-weight:700;line-height:1.2;}' +
+    '.manifesto-stat-label{display:block;color:#667085;font-size:.76rem;font-weight:600;}' +
+    '.manifesto-tracker-output{display:block;width:100%;min-height:220px;padding:13px;color:#344054;background:#f8fafc;border:1px solid #dfe3e8;border-radius:8px;font-family:Consolas,Monaco,monospace;font-size:.78rem;line-height:1.55;resize:vertical;}' +
+    '.manifesto-copy-button{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:10px 16px;color:#fff;background:#344054;border:0;border-radius:7px;font-family:Arial,Helvetica,sans-serif;font-size:.86rem;font-weight:700;cursor:pointer;}' +
+    '.manifesto-copy-button:hover{background:#1d2939;}' +
+    '.manifesto-copy-button.is-copied{background:#15803d;}' +
+    '@media(max-width:700px){.manifesto-tracker{padding:16px;}.manifesto-tracker-stats{grid-template-columns:repeat(2,1fr);}}';
+  explorer.appendChild(trackerStyle);
+
+  var tracker = document.createElement('section');
+  tracker.className = 'manifesto-tracker';
+  tracker.innerHTML =
+    '<h2 class="manifesto-tracker-title">Ihr Leseprotokoll</h2>' +
+    '<p class="manifesto-tracker-description">Alle geöffneten Parteieinträge werden hier aufgezeichnet. Das Protokoll kann über den Button kopiert und anschließend eingefügt werden.</p>' +
+    '<div class="manifesto-tracker-stats">' +
+      '<div class="manifesto-stat"><span class="manifesto-stat-number tracker-total">0</span><span class="manifesto-stat-label">Klicks gesamt</span></div>' +
+      '<div class="manifesto-stat"><span class="manifesto-stat-number tracker-unique">0</span><span class="manifesto-stat-label">Einzigartige Einträge</span></div>' +
+      '<div class="manifesto-stat"><span class="manifesto-stat-number tracker-issues">0</span><span class="manifesto-stat-label">Themen erkundet</span></div>' +
+      '<div class="manifesto-stat"><span class="manifesto-stat-number tracker-parties">0</span><span class="manifesto-stat-label">Parteien erkundet</span></div>' +
+    '</div>' +
+    '<textarea class="manifesto-tracker-output" readonly aria-label="Leseprotokoll"></textarea>' +
+    '<button type="button" class="manifesto-copy-button">Protokoll kopieren</button>';
+  explorer.appendChild(tracker);
+
+  var totalOutput = tracker.querySelector('.tracker-total');
+  var uniqueOutput = tracker.querySelector('.tracker-unique');
+  var issuesOutput = tracker.querySelector('.tracker-issues');
+  var partiesOutput = tracker.querySelector('.tracker-parties');
+  var textOutput = tracker.querySelector('.manifesto-tracker-output');
+  var copyButton = tracker.querySelector('.manifesto-copy-button');
+
+  function getDirectSummary(detailsElement) {
+    var children = detailsElement.children;
+    for (var i = 0; i < children.length; i++) {
+      if (children[i].tagName && children[i].tagName.toLowerCase() === 'summary') return children[i];
+    }
+    return null;
+  }
+
+  function getIssueInformation(issueElement) {
+    var summary = getDirectSummary(issueElement);
+    var numberElement = summary ? summary.querySelector('.issue-number') : null;
+    var issueNumber = numberElement ? numberElement.textContent.trim() : '?';
+    var issueTitle = '';
+    if (summary) {
+      var summaryChildren = summary.querySelectorAll('span');
+      for (var i = 0; i < summaryChildren.length; i++) {
+        if (!summaryChildren[i].classList.contains('issue-number')) {
+          issueTitle = summaryChildren[i].textContent.trim();
+          break;
+        }
+      }
+    }
+    return { number: issueNumber, title: issueTitle };
+  }
+
+  function getPartyName(partyElement) {
+    var summary = getDirectSummary(partyElement);
+    return summary ? summary.textContent.trim() : 'Unbekannte Partei';
+  }
+
+  function createReadableProtocol() {
+    var lines = [];
+    var uniqueCount = Object.keys(uniqueEntries).length;
+    var issueCount = Object.keys(issuesExplored).length;
+    var partyCount = Object.keys(partiesExplored).length;
+    lines.push('Wahlprogramm-Explorer Leseprotokoll');
+    lines.push('Begonnen: ' + startedAt.toLocaleString('de-DE'));
+    lines.push('');
+    lines.push('Klicks gesamt: ' + readingLog.length);
+    lines.push('Einzigartige Einträge: ' + uniqueCount);
+    lines.push('Themen: ' + issueCount + ' / 10');
+    lines.push('Parteien: ' + partyCount + ' / 7');
+    lines.push('');
+    lines.push('--- Gelesene Einträge chronologisch ---');
+    if (readingLog.length === 0) {
+      lines.push('Noch keine Parteieinträge ge&ouml;ffnet.');
+    } else {
+      for (var i = 0; i < readingLog.length; i++) {
+        var entry = readingLog[i];
+        var entryTime = new Date(entry.timestamp).toLocaleTimeString('de-DE');
+        lines.push((i + 1) + '. Thema ' + entry.issueNumber + ' – ' + entry.issueTitle + ' | ' + entry.party + ' | ' + entryTime);
+      }
+    }
+    return lines.join('\n');
+  }
+
+  function saveToQualtrics(readableProtocol) {
+    var uniqueCount = Object.keys(uniqueEntries).length;
+    var issueCount = Object.keys(issuesExplored).length;
+    var partyCount = Object.keys(partiesExplored).length;
+    var jsonData = {
+      version: 1,
+      startedAt: startedAt.toISOString(),
+      totalPartyOpens: readingLog.length,
+      uniqueEntries: uniqueCount,
+      issuesExplored: Object.keys(issuesExplored),
+      partiesExplored: Object.keys(partiesExplored),
+      events: readingLog
+    };
+    try {
+      Qualtrics.SurveyEngine.setEmbeddedData('ManifestoExplorerLog', JSON.stringify(jsonData));
+      Qualtrics.SurveyEngine.setEmbeddedData('ManifestoExplorerReadableLog', readableProtocol);
+      Qualtrics.SurveyEngine.setEmbeddedData('ManifestoExplorerClicks', String(readingLog.length));
+      Qualtrics.SurveyEngine.setEmbeddedData('ManifestoExplorerUnique', String(uniqueCount));
+      Qualtrics.SurveyEngine.setEmbeddedData('ManifestoExplorerIssues', String(issueCount));
+      Qualtrics.SurveyEngine.setEmbeddedData('ManifestoExplorerParties', String(partyCount));
+    } catch (error) {}
+  }
+
+  function updateTracker() {
+    var readableProtocol = createReadableProtocol();
+    totalOutput.textContent = String(readingLog.length);
+    uniqueOutput.textContent = String(Object.keys(uniqueEntries).length);
+    issuesOutput.textContent = String(Object.keys(issuesExplored).length);
+    partiesOutput.textContent = String(Object.keys(partiesExplored).length);
+    textOutput.value = readableProtocol;
+    saveToQualtrics(readableProtocol);
+  }
+
+  function recordPartyOpening(partyElement) {
+    var issueElement = partyElement.closest('.issue');
+    if (!issueElement) return;
+    var issueInformation = getIssueInformation(issueElement);
+    var partyName = getPartyName(partyElement);
+    var uniqueKey = issueInformation.number + '::' + partyName;
+    uniqueEntries[uniqueKey] = true;
+    issuesExplored[issueInformation.number] = true;
+    partiesExplored[partyName] = true;
+    readingLog.push({
+      event: 'party-open',
+      issueNumber: issueInformation.number,
+      issueTitle: issueInformation.title,
+      party: partyName,
+      timestamp: new Date().toISOString(),
+      elapsedMilliseconds: new Date().getTime() - startedAt.getTime()
+    });
+    updateTracker();
+  }
+
+  var partyElements = explorer.querySelectorAll('details.party');
+  for (var i = 0; i < partyElements.length; i++) {
+    (function (partyElement) {
+      partyElement.addEventListener('toggle', function () {
+        if (partyElement.open) recordPartyOpening(partyElement);
+      });
+    })(partyElements[i]);
+  }
+
+  function fallbackCopy() {
+    textOutput.focus();
+    textOutput.select();
+    textOutput.setSelectionRange(0, textOutput.value.length);
+    try { document.execCommand('copy'); } catch (error) {}
+  }
+
+  function showCopiedMessage() {
+    copyButton.classList.add('is-copied');
+    copyButton.textContent = 'Protokoll kopiert';
+    window.setTimeout(function () {
+      copyButton.classList.remove('is-copied');
+      copyButton.textContent = 'Protokoll kopieren';
+    }, 2000);
+  }
+
+  copyButton.addEventListener('click', function () {
+    var copyText = textOutput.value;
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(copyText).then(showCopiedMessage).catch(function () {
+        fallbackCopy();
+        showCopiedMessage();
+      });
+    } else {
+      fallbackCopy();
+      showCopiedMessage();
+    }
+  });
+
+  updateTracker();
+});
+</script>
